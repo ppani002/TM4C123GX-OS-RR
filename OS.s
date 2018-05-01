@@ -4,7 +4,7 @@
 	;Includes definitions required for OS_InitContextSwitcher
 	INCLUDE my_Constants.s
 		
-	IMPORT tcbsArray ;import array
+	IMPORT tcbsArrayP ;import array
 	IMPORT RunThread ;import pointer
 
 ;This function sets up the systemclock
@@ -21,7 +21,7 @@ OS_InitStack	PROC
 			
 		PUSH {r4, LR}
 		
-		LDR r1,=tcbsArray ;Loading the task from the tcbsArray
+		LDR r1,=tcbsArrayP ;Loading the task from the tcbsArray
 		
 		MOV r4, #0
 loop	CMP r0, r4

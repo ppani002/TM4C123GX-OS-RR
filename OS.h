@@ -20,10 +20,14 @@ struct tcb
 typedef struct tcb tcbs;
 
 //Thread Control Block array. Also used in OS_StackInit in OS.s assembly file
-extern tcbs tcbsArray[THREADSIZE];
+tcbs tcbsArray[THREADSIZE];
+
+//Temporary thread to point to the tcbsArray
+extern tcbs *tcbsArrayP = &tcbsArray[0];
 
 //This pointer is used in the context switcher to load the next thread
-extern tcbs *RunThread;
+//Initialized to 0 because variables imported to assembly must be initialized
+extern tcbs *RunThread = 0;
 
 //This array contains the array of time slices for all threads in order
 int32_t timeSlices[THREADSIZE];
