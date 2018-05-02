@@ -199,7 +199,7 @@ ARM Macro Assembler    Page 3
 ARM Macro Assembler    Page 4 
 
 
-    7 00000000                 IMPORT           tcbsArray   ;import array
+    7 00000000                 IMPORT           tcbsArrayP  ;import array
     8 00000000                 IMPORT           RunThread   ;import pointer
     9 00000000         
    10 00000000         ;This function sets up the systemclock
@@ -220,9 +220,9 @@ ARM Macro Assembler    Page 4
    21 00000000         
    22 00000000 B510            PUSH             {r4, LR}
    23 00000002         
-   24 00000002 4927            LDR              r1,=tcbsArray ;Loading the task
-                                                             from the tcbsArray
-                                                            
+   24 00000002 4927            LDR              r1,=tcbsArrayP ;Loading the tas
+                                                            k from the tcbsArra
+                                                            y
    25 00000004         
    26 00000004 F04F 0400       MOV              r4, #0
    27 00000008 42A0    loop    CMP              r0, r4
@@ -1002,13 +1002,13 @@ Symbol: RunThread
    Uses
       At line 108 in file OS.s
 Comment: RunThread used once
-tcbsArray 00000000
+tcbsArrayP 00000000
 
-Symbol: tcbsArray
+Symbol: tcbsArrayP
    Definitions
       At line 7 in file OS.s
    Uses
       At line 24 in file OS.s
-Comment: tcbsArray used once
+Comment: tcbsArrayP used once
 2 symbols
 406 symbols in table
