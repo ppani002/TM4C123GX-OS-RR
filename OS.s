@@ -8,6 +8,7 @@
 	IMPORT RunThread ;import pointer
 
 ;This function sets up the systemclock with PIOSC 16MHz
+;Change this if you wish to use a different clock, with divisor, etc
 OS_InitClock	PROC
 		EXPORT OS_InitClock
 
@@ -24,10 +25,12 @@ OS_InitClock	PROC
 	
 	;Set BYPASS. 
 	;AND r1, r1, #(0<<11) ;clear bit 11
+	BFC r1, #11, #1
 	ORR r1, r1, #(1<<11) ;BYPASS to set system clock to OSC
 	
 	;Set USESYSDIV. Selects no division
-	AND r1, r1, #(0<<22) ;clear it 22
+	;AND r1, r1, #(0<<22) ;clear it 22
+	BFC r1, #22, #1
 	ORR r1, r1, #(0<<22) ;No division for system clock. This line is for clarity
 	
 	
@@ -40,7 +43,7 @@ OS_InitClock	PROC
 
 ;This function initiates the stack by subtracting sp by the total number 
 ;of words needed to fill in all registers. The stack location for PC is
-;stored with the threads task location
+;stored with the threads task location. xPSR not needed.
 ;r0 = numThreads (THREADSIZE)
 OS_InitStack	PROC
 		EXPORT OS_InitStack
@@ -73,7 +76,7 @@ OS_InitContextSwitcher PROC
 			;Push LR onto stack first
 	PUSH {r4, LR}
 	
-	;RCGC used to etsablish base clock
+	;RCC used to etsablish base clock
 	
 	;Clear ENABLE bit. STCTRL
 	LDR r0, =SYS_PERIPH
@@ -94,10 +97,11 @@ OS_InitContextSwitcher PROC
 	STR r1, [r0,#STCURRENT]
 	;LDR r1, [r0,#STCURRENT]
 	
-	;May not need this. Finish InitClock() first.
-	;Set CLK_SRC bit to use the system clock (PIOSC). STCTRL
+
+	;Set CLK_SRC bit to use the system clock (look at InitClock). STCTRL
 	LDR r0, =SYS_PERIPH
 	LDR r1, [r0,#STCTRL]
+	BFC r1, #2, #1
 	ORR r1, r1, #(1<<2) ;bit 2
 	STR r1, [r0,#STCTRL]
 	
@@ -132,21 +136,74 @@ OS_InitContextSwitcher PROC
 OS_Launch PROC
 		EXPORT OS_Launch
 
+	;Get SP to the first tcb and load into SP register
 	LDR r0, =RunThread
 	LDR r1, [r0]
 	LDR sp, [r1]
 	
+	;Pop the context
 	POP {r4-r11}
 	POP {r0-r3}
 	POP {r12}
 	POP {r14}
 	POP {r15}
-	;POP {xPSR} ;?
 	
+	;Ignore xPSR (r"16", right after PC r15)
+	ADD sp, sp, #4
+	
+	;Add CPSIE I as another function
 	CPSIE I
 	BX LR
 	
 	ENDP
 
+
+;This function is used to disable interrupts. Use it for large critical sections without
+;a shared resource
+OS_DisableInterrupts	PROC
+		EXPORT OS_DisableInterrupts
+			
+	CPSID I
+	
+	BX LR
+	
+	ENDP
+	
+;This function is used to enable interrupts after disabling them. Use this when you use 
+;OS_DisableInterrupts
+OS_EnableInterrupts	PROC
+		EXPORT OS_EnableInterrupts
+
+	CPSIE I
+	
+	BX LR
+	
+	ENDP
+		
+;This function is used to disable interrupts. Use this for critical sections that
+;share resources
+;r0 (return value) = PRIMASK (reenables interrupts later)
+OS_CriticalSectionS	PROC
+		EXPORT OS_CriticalSectionS
+		
+	MRS r0, PRIMASK
+	CPSID I
+	
+	BX LR
+	
+	ENDP
+		
+;This function is used to enable interrpts. Use it after using OS_CriticalSection
+;r0 (input) = PRIMASK value from OS_CriticalSectionS
+OS_CriticalSectionE	PROC
+		EXPORT OS_CriticalSectionE
+			
+	MSR PRIMASK, r0
+	
+	BX LR
+	
+;This function is used to get a semaphore. 
+
+		
 	END
-	;write code for OS_InitStack here, and OS_ContextSwitcher and OS_Launch
+		
