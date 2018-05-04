@@ -132,9 +132,9 @@ Removing Unused input sections from the image.
     Removing os.o(.data), (4 bytes).
     Removing my_constants.o(My_Constants), (0 bytes).
     Removing os_1.o(oscode), (0 bytes).
-    Removing os_1.o(My_Constants), (232 bytes).
+    Removing os_1.o(My_Constants), (320 bytes).
 
-9 unused section(s) (total 428 bytes) removed from the image.
+9 unused section(s) (total 516 bytes) removed from the image.
 
 ==============================================================================
 

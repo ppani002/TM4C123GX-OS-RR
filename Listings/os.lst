@@ -215,7 +215,7 @@ ARM Macro Assembler    Page 4
    15 00000000         ;RCC manipulations here to set base clocks
    16 00000000 B510            PUSH             {r4, LR}
    17 00000002         
-   18 00000002 4836            LDR              r0, =SYS_CONTROL
+   18 00000002 484C            LDR              r0, =SYS_CONTROL
    19 00000004 6E01            LDR              r1,[r0, #RCC]
    20 00000006         
    21 00000006         ;Set OSCRC. Select PIOSC
@@ -267,7 +267,7 @@ ARM Macro Assembler    Page 5
    50 00000024         
    51 00000024 B510            PUSH             {r4, LR}
    52 00000026         
-   53 00000026 492E            LDR              r1,=tcbsArray ;Loading the task
+   53 00000026 4944            LDR              r1,=tcbsArray ;Loading the task
                                                              from the tcbsArray
                                                             
    54 00000028         
@@ -379,7 +379,7 @@ ARM Macro Assembler    Page 6
   137 000000A6                 EXPORT           OS_Launch
   138 000000A6         
   139 000000A6         ;Get SP to the first tcb and load into SP register
-  140 000000A6 480F            LDR              r0, =RunThread
+  140 000000A6 4825            LDR              r0, =RunThread
   141 000000A8 6801            LDR              r1, [r0]
   142 000000AA F8D1 D000       LDR              sp, [r1]
   143 000000AE         
@@ -465,8 +465,111 @@ ARM Macro Assembler    Page 8
   202 000000D8         
   203 000000D8 4770            BX               LR
   204 000000DA         
-  205 000000DA         
-  206 000000DA                 END
+  205 000000DA                 ENDP
+  206 000000DA         
+  207 000000DA         ;This function is used to initialize the semaphore. Pass
+                        the define value in OS.h to initialize it
+  208 000000DA         ;properly. They are basically the reason you are using t
+                       he semaphore.
+  209 000000DA         ;r0 (input) = TO_COMPLETION (0), or THREAD_SYNC (1), or 
+                       MAILBOX (2)
+  210 000000DA         ;r0 (return value) = value for semaphore
+  211 000000DA         OS_SemaphoreInit
+                               PROC
+  212 000000DA                 EXPORT           OS_SemaphoreInit
+  213 000000DA         
+  214 000000DA B510            PUSH             {r4, LR}
+  215 000000DC         
+  216 000000DC F000 0203       AND              r2, r0, #3  ;Mask value so ther
+                                                            e are only 2 valid 
+                                                            bits for 0~2
+  217 000000E0         
+  218 000000E0 E8DF F002       TBB              [pc,r2]
+  219 000000E4         BranchTable
+  220 000000E4 02              DCB              (Case_0 - BranchTable)/2 
+                                                            ;TO_COMPLETION
+  221 000000E5 07              DCB              (Case_1 - BranchTable)/2 
+                                                            ;THREAD_SYNC
+  222 000000E6 0C              DCB              (Case_2 - BranchTable)/2 
+                                                            ;MAILBOX
+  223 000000E7 00              ALIGN
+  224 000000E8         
+  225 000000E8         Case_0
+  226 000000E8 F000 0000       AND              r0, r0, #0
+  227 000000EC F040 0001       ORR              r0, r0, #1
+  228 000000F0 E009            B                exit
+  229 000000F2         Case_1
+  230 000000F2 F000 0000       AND              r0, r0, #0
+  231 000000F6 F040 0000       ORR              r0, r0, #0
+  232 000000FA E004            B                exit
+  233 000000FC         Case_2
+  234 000000FC F000 0000       AND              r0, r0, #0
+  235 00000100 F040 0000       ORR              r0, r0, #0
+  236 00000104 E7FF            B                exit
+  237 00000106         
+  238 00000106         exit
+  239 00000106 E8BD 4010       POP              {r4, LR}
+  240 0000010A 4770            BX               LR
+  241 0000010C         
+  242 0000010C                 ENDP
+  243 0000010C         
+  244 0000010C         
+  245 0000010C         ;This function is used to lock non-reentrant code. Use t
+                       his when you need to synchronize your code
+  246 0000010C         ;eg. synchronize sharing resources, eg. 
+  247 0000010C         ;r0 (input) = the semaphore (it's basically just a count
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+                       er)
+  248 0000010C         OS_SemaphoreWait
+                               PROC
+  249 0000010C                 EXPORT           OS_SemaphoreWait
+  250 0000010C         
+  251 0000010C         ;Load value of semaphore. 
+  252 0000010C         ;If it's 0, semphaore is locked and spins
+  253 0000010C         ;If it's 1, sempahore is unlocked and released
+  254 0000010C E850 1F00       LDREX            r1,[r0]
+  255 00000110 2901            CMP              r1, #1
+  256 00000112         
+  257 00000112 BF02            ITTT             EQ
+  258 00000114 3901            SUBEQ            r1, #1
+  259 00000116 E840 1200       STREXEQ          r2,r1,[r0]  ;if r2 = 0, then st
+                                                            ore succeeded. Othe
+                                                            rwise repeat
+  260 0000011A 2A00            CMPEQ            r2, #0
+  261 0000011C         
+  262 0000011C D1FE            BNE              OS_SemaphoreWait
+  263 0000011E         
+  264 0000011E 4770            BX               LR
+  265 00000120         
+  266 00000120                 ENDP
+  267 00000120         
+  268 00000120         ;This function is used to unlock non-reentrant code. Use
+                        this when you need to synchronize your code
+  269 00000120         ;
+  270 00000120         ;r0 (input) = the semaphore (its basically just a counte
+                       r)
+  271 00000120         OS_SemaphoreSignal
+                               PROC
+  272 00000120                 EXPORT           OS_SemaphoreSignal
+  273 00000120         
+  274 00000120         ;Load the counter and add 1
+  275 00000120 E850 1F00       LDREX            r1,[r0]
+  276 00000124 F101 0101       ADD              r1, #1
+  277 00000128 E840 1200       STREX            r2, r1, [r0] ;If r2 = 0, store 
+                                                            succeeded. Otherwis
+                                                            e, repeat.
+  278 0000012C 2A00            CMP              r2, #0
+  279 0000012E D1FE            BNE              OS_SemaphoreSignal
+  280 00000130 4770            BX               LR
+  281 00000132         
+  282 00000132                 ENDP
+  283 00000132         
+  284 00000132                 END
               00 00 400FE000 
               00000000 
               00000000 
@@ -497,6 +600,40 @@ Comment: oscode unused
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Relocatable symbols
 
+BranchTable 000000E4
+
+Symbol: BranchTable
+   Definitions
+      At line 219 in file OS.s
+   Uses
+      At line 220 in file OS.s
+      At line 221 in file OS.s
+      At line 222 in file OS.s
+
+Case_0 000000E8
+
+Symbol: Case_0
+   Definitions
+      At line 225 in file OS.s
+   Uses
+      At line 220 in file OS.s
+Comment: Case_0 used once
+Case_1 000000F2
+
+Symbol: Case_1
+   Definitions
+      At line 229 in file OS.s
+   Uses
+      At line 221 in file OS.s
+Comment: Case_1 used once
+Case_2 000000FC
+
+Symbol: Case_2
+   Definitions
+      At line 233 in file OS.s
+   Uses
+      At line 222 in file OS.s
+Comment: Case_2 used once
 My_Constants 00000000
 
 Symbol: My_Constants
@@ -522,6 +659,12 @@ Symbol: OS_CriticalSectionS
       At line 187 in file OS.s
 Comment: OS_CriticalSectionS used once
 OS_DisableInterrupts 000000C4
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
 
 Symbol: OS_DisableInterrupts
    Definitions
@@ -556,12 +699,6 @@ Comment: OS_InitContextSwitcher used once
 OS_InitStack 00000024
 
 Symbol: OS_InitStack
-
-
-
-ARM Macro Assembler    Page 2 Alphabetic symbol ordering
-Relocatable symbols
-
    Definitions
       At line 48 in file OS.s
    Uses
@@ -575,6 +712,38 @@ Symbol: OS_Launch
    Uses
       At line 137 in file OS.s
 Comment: OS_Launch used once
+OS_SemaphoreInit 000000DA
+
+Symbol: OS_SemaphoreInit
+   Definitions
+      At line 211 in file OS.s
+   Uses
+      At line 212 in file OS.s
+Comment: OS_SemaphoreInit used once
+OS_SemaphoreSignal 00000120
+
+Symbol: OS_SemaphoreSignal
+   Definitions
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 271 in file OS.s
+   Uses
+      At line 272 in file OS.s
+      At line 279 in file OS.s
+
+OS_SemaphoreWait 0000010C
+
+Symbol: OS_SemaphoreWait
+   Definitions
+      At line 248 in file OS.s
+   Uses
+      At line 249 in file OS.s
+      At line 262 in file OS.s
+
 endloop 00000042
 
 Symbol: endloop
@@ -583,6 +752,16 @@ Symbol: endloop
    Uses
       At line 57 in file OS.s
 Comment: endloop used once
+exit 00000106
+
+Symbol: exit
+   Definitions
+      At line 238 in file OS.s
+   Uses
+      At line 228 in file OS.s
+      At line 232 in file OS.s
+      At line 236 in file OS.s
+
 loop 0000002C
 
 Symbol: loop
@@ -591,7 +770,7 @@ Symbol: loop
    Uses
       At line 66 in file OS.s
 Comment: loop used once
-11 symbols
+19 symbols
 
 
 
@@ -1175,4 +1354,4 @@ Symbol: tcbsArray
       At line 53 in file OS.s
 Comment: tcbsArray used once
 2 symbols
-411 symbols in table
+419 symbols in table

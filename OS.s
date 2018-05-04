@@ -7,6 +7,10 @@
 	IMPORT tcbsArray ;import array
 	IMPORT RunThread ;import pointer
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;; 				Initialization functions 		   ;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;This function sets up the systemclock with PIOSC 16MHz
 ;Change this if you wish to use a different clock, with divisor, etc
 OS_InitClock	PROC
@@ -157,6 +161,9 @@ OS_Launch PROC
 	
 	ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;; 				Synch functions					   ;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;This function is used to disable interrupts. Use it for large critical sections without
 ;a shared resource
@@ -202,8 +209,84 @@ OS_CriticalSectionE	PROC
 	
 	BX LR
 	
-;This function is used to get a semaphore. 
+	ENDP
+	
+;This function is used to initialize the semaphore. Pass the define value in OS.h to initialize it
+;properly. They are basically the reason you are using the semaphore.
+;r0 (input) = TO_COMPLETION (0), or THREAD_SYNC (1), or MAILBOX (2)
+;r0 (return value) = value for semaphore
+OS_SemaphoreInit	PROC
+		EXPORT OS_SemaphoreInit
+			
+	PUSH {r4, LR}
+			
+	AND r2, r0, #3 ;Mask value so there are only 2 valid bits for 0~2
+	
+	TBB [pc,r2]
+BranchTable
+	DCB (Case_0 - BranchTable)/2 ;TO_COMPLETION
+	DCB (Case_1 - BranchTable)/2 ;THREAD_SYNC
+	DCB (Case_2 - BranchTable)/2 ;MAILBOX
+	ALIGN
+		
+Case_0
+	AND r0, r0, #0
+	ORR r0, r0, #1
+	B exit
+Case_1
+	AND r0, r0, #0
+	ORR r0, r0, #0
+	B exit
+Case_2
+	AND r0, r0, #0
+	ORR r0, r0, #0
+	B exit
+	
+exit
+	POP {r4, LR}
+	BX LR
+	
+	ENDP
+	
+	
+;This function is used to lock non-reentrant code. Use this when you need to synchronize your code
+;eg. synchronize sharing resources, eg. 
+;r0 (input) = the semaphore (it's basically just a counter)
+OS_SemaphoreWait	PROC
+		EXPORT OS_SemaphoreWait
+	
+	;Load value of semaphore. 
+	;If it's 0, semphaore is locked and spins
+	;If it's 1, sempahore is unlocked and released
+	LDREX r1,[r0]
+	CMP r1, #1
+	
+	ITTT EQ
+	SUBEQ r1, #1
+	STREXEQ r2,r1,[r0] ;if r2 = 0, then store succeeded. Otherwise repeat
+	CMPEQ r2, #0
+	
+	BNE OS_SemaphoreWait
+	
+	BX LR
+	
+	ENDP
 
+;This function is used to unlock non-reentrant code. Use this when you need to synchronize your code
+;
+;r0 (input) = the semaphore (its basically just a counter)
+OS_SemaphoreSignal	PROC
+		EXPORT OS_SemaphoreSignal
+		
+	;Load the counter and add 1
+	LDREX r1,[r0]
+	ADD r1, #1
+	STREX r2, r1, [r0] ;If r2 = 0, store succeeded. Otherwise, repeat.
+	CMP r2, #0
+	BNE OS_SemaphoreSignal
+	BX LR
+	
+	ENDP
 		
 	END
 		
