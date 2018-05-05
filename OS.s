@@ -199,7 +199,9 @@ OS_CriticalSectionS	PROC
 		EXPORT OS_CriticalSectionS
 		
 	MRS r0, PRIMASK
-	CPSID I
+	;CPSID I
+	
+	BL OS_DisableInterrupts
 	
 	BX LR
 	
