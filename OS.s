@@ -16,7 +16,7 @@
 OS_InitClock	PROC
 		EXPORT OS_InitClock
 
-	;RCC manipulations here to set base clocks
+	;Save context
 	PUSH {r4, LR}
 	
 	LDR r0, =SYS_CONTROL
@@ -37,12 +37,12 @@ OS_InitClock	PROC
 	BFC r1, #22, #1
 	ORR r1, r1, #(0<<22) ;No division for system clock. This line is for clarity
 	
-	
-	
 	STR r1,[r0, #RCC]
 	
+	;restore context
 	POP {r4, LR}
-
+	BX LR
+	
 	ENDP
 
 ;This function initiates the stack by subtracting sp by the total number 
@@ -52,6 +52,7 @@ OS_InitClock	PROC
 OS_InitStack	PROC
 		EXPORT OS_InitStack
 			
+		;Save context
 		PUSH {r4, LR}
 		
 		LDR r1,=tcbsArray ;Loading the task from the tcbsArray
@@ -128,9 +129,8 @@ OS_InitContextSwitcher PROC
 	STR r1, [r0,#STCTRL]
 	
 	
-	;Pop LR and return to __main
-	;POP {LR}
-	POP {r4, PC}
+	;Restore context
+	POP {r4, LR}
 	BX LR
 	
 	ENDP
@@ -171,10 +171,15 @@ OS_Launch PROC
 OS_DisableInterrupts	PROC
 		EXPORT OS_DisableInterrupts
 			
+	;Save context
+	PUSH {r4, LR}
+			
 	;CPSID I
 	MOVS r0, #1
 	MSR PRIMASK, r0
 	
+	;Restore context
+	POP {r4, LR}
 	BX LR
 	
 	ENDP
@@ -184,10 +189,15 @@ OS_DisableInterrupts	PROC
 OS_EnableInterrupts	PROC
 		EXPORT OS_EnableInterrupts
 
+	;Save context
+	PUSH {r4, LR}
+
 	;CPSIE I
 	MOVS r0, #0
 	MSR PRIMASK, r0
 	
+	;Restore context
+	POP {r4, LR}
 	BX LR
 	
 	ENDP
@@ -197,12 +207,17 @@ OS_EnableInterrupts	PROC
 ;r0 (return value) = PRIMASK (reenables interrupts later)
 OS_CriticalSectionS	PROC
 		EXPORT OS_CriticalSectionS
+			
+	;Save context
+	PUSH {r4, LR}
 		
 	MRS r0, PRIMASK
 	;CPSID I
 	
 	BL OS_DisableInterrupts
 	
+	;Restore context
+	POP {r4, LR}
 	BX LR
 	
 	ENDP
@@ -212,9 +227,14 @@ OS_CriticalSectionS	PROC
 ;r0 (input) = PRIMASK value from OS_CriticalSectionS
 OS_CriticalSectionE	PROC
 		EXPORT OS_CriticalSectionE
-			
+		
+	;Save context
+	PUSH {r4, LR}
+
 	MSR PRIMASK, r0
 	
+	;Restore context
+	POP {r4, LR}
 	BX LR
 	
 	ENDP
@@ -226,6 +246,7 @@ OS_CriticalSectionE	PROC
 OS_SemaphoreInit	PROC
 		EXPORT OS_SemaphoreInit
 			
+	;Save context
 	PUSH {r4, LR}
 			
 	AND r2, r0, #3 ;Mask value so there are only 2 valid bits for 0~2
@@ -250,7 +271,7 @@ Case_2
 	ORR r0, r0, #0
 	B exit
 	
-exit
+exit ;restore context
 	POP {r4, LR}
 	BX LR
 	
@@ -292,6 +313,7 @@ OS_SemaphoreSignal	PROC
 	STREX r2, r1, [r0] ;If r2 = 0, store succeeded. Otherwise, repeat.
 	CMP r2, #0
 	BNE OS_SemaphoreSignal
+	
 	BX LR
 	
 	ENDP
