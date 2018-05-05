@@ -155,8 +155,9 @@ OS_Launch PROC
 	;Ignore xPSR (r"16", right after PC r15)
 	ADD sp, sp, #4
 	
-	;Add CPSIE I as another function
-	CPSIE I
+	;Reenable interrupts
+	BL OS_EnableInterrupts 
+	
 	BX LR
 	
 	ENDP
@@ -170,7 +171,9 @@ OS_Launch PROC
 OS_DisableInterrupts	PROC
 		EXPORT OS_DisableInterrupts
 			
-	CPSID I
+	;CPSID I
+	MOVS r0, #1
+	MSR PRIMASK, r0
 	
 	BX LR
 	
@@ -181,14 +184,16 @@ OS_DisableInterrupts	PROC
 OS_EnableInterrupts	PROC
 		EXPORT OS_EnableInterrupts
 
-	CPSIE I
+	;CPSIE I
+	MOVS r0, #0
+	MSR PRIMASK, r0
 	
 	BX LR
 	
 	ENDP
 		
 ;This function is used to disable interrupts. Use this for critical sections that
-;share resources
+;share resources. Start of Critical Section
 ;r0 (return value) = PRIMASK (reenables interrupts later)
 OS_CriticalSectionS	PROC
 		EXPORT OS_CriticalSectionS
@@ -201,6 +206,7 @@ OS_CriticalSectionS	PROC
 	ENDP
 		
 ;This function is used to enable interrpts. Use it after using OS_CriticalSection
+;End of critical section
 ;r0 (input) = PRIMASK value from OS_CriticalSectionS
 OS_CriticalSectionE	PROC
 		EXPORT OS_CriticalSectionE
