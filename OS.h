@@ -12,6 +12,16 @@
 #define THREAD_SYNC 1		//When 2 threads need to be synched (done in specific order)
 #define MAILBOX 2				//When you have producer & consumer threads. 
 
+/*
+//Values for the SysTick interrupt
+#define ONE_MS
+#define
+#define
+#define
+#define
+#define
+*/
+
 //This initiates the tcb structs 
 void OS_InitTCB(int *tSlices, void (*tasks)(void));
 

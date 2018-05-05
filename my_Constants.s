@@ -70,6 +70,18 @@ UARTIM		EQU	0x038
 UARTMIS		EQU	0x040
 UARTICR		EQU	0x044
 UARTDR		EQU	0x000
+
+;Other values
+	;Systick speed
+	;x = (time here)*(basec clock here). Can only hold 24 bits
+	;Microseconds (1)
+ONE_MS		EQU	0x003E7F
+TEN_MS		EQU	0x0270FF
+HUN_MS		EQU 0x1869FF
+	;Microseconds (1)
+ONE_US		EQU	0x00000F
+TEN_US		EQU 0x000063
+HUN_US		EQU 0x0003E7
 	
 ;FIFO constants
 	;ALIGN 2

@@ -1,12 +1,12 @@
 Dependencies for Project 'TM4C123GX-OS-RR', Target 'Target 1': (DO NOT MODIFY !)
 F (.\OS.h)(0x5AECB723)()
 F (.\startup_rvmdk.S)(0x5AE4FF0D)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "TM4C123GH6PM SETA 1"--list .\listings\startup_rvmdk.lst --xref -o .\objects\startup_rvmdk.o --depend .\objects\startup_rvmdk.d)
-I (my_Constants.s)(0x5AEA2A4E)
+I (my_Constants.s)(0x5AEDEC75)
 F (.\OS.c)(0x5AEA1332)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork --split_sections-IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DTM4C123GH6PM-o .\objects\os.o --omf_browse .\objects\os.crf --depend .\objects\os.d)
 I (OS.h)(0x5AECB723)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x574EE6E6)
-F (.\my_Constants.s)(0x5AEA2A4E)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "TM4C123GH6PM SETA 1"--list .\listings\my_constants.lst --xref -o .\objects\my_constants.o --depend .\objects\my_constants.d)
-F (.\OS.s)(0x5AEDE33B)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "TM4C123GH6PM SETA 1"--list .\listings\os.lst --xref -o .\objects\os_1.o --depend .\objects\os_1.d)
-I (my_Constants.s)(0x5AEA2A4E)
+F (.\my_Constants.s)(0x5AEDEC75)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "TM4C123GH6PM SETA 1"--list .\listings\my_constants.lst --xref -o .\objects\my_constants.o --depend .\objects\my_constants.d)
+F (.\OS.s)(0x5AEDED39)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 521" --pd "TM4C123GH6PM SETA 1"--list .\listings\os.lst --xref -o .\objects\os_1.o --depend .\objects\os_1.d)
+I (my_Constants.s)(0x5AEDEC75)
 F (.\userCode.c)(0x5AEA03D4)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork --split_sections-IC:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE-IC:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="521" -DTM4C123GH6PM-o .\objects\usercode.o --omf_browse .\objects\usercode.crf --depend .\objects\usercode.d)
 I (OS.h)(0x5AECB723)

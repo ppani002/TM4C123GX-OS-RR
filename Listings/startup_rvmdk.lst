@@ -250,26 +250,43 @@ ARM Macro Assembler    Page 4
    72 00000000 00000000 
                        UARTDR  EQU              0x000
    73 00000000         
-   74 00000000         ;FIFO constants
-   75 00000000         ;ALIGN 2
-   76 00000000 00000010 
-                       SIZE    EQU              16
-   77 00000000 00000001 
-                       SUCCESS EQU              1
-   78 00000000 00000000 
-                       FAIL    EQU              0
+   74 00000000         ;Other values
+   75 00000000         ;Systick speed. x = (time here)*(basec clock here)
+   76 00000000         ;Microseconds (1)
+   77 00000000 00003E7F 
+                       ONE_MS  EQU              0x003E7F
+   78 00000000 000270FF 
+                       TEN_MS  EQU              0x0270FF
+   79 00000000 001869FF 
 
 
 
 ARM Macro Assembler    Page 5 
 
 
-   79 00000000         
-   80 00000000         ;GPIODATA Toggle bits
-   81 00000000 00000020 
+                       HUN_MS  EQU              0x1869FF
+   80 00000000         ;Microseconds (1)
+   81 00000000 0000000F 
+                       ONE_US  EQU              0x00000F
+   82 00000000 00000063 
+                       TEN_US  EQU              0x000063
+   83 00000000 000003E7 
+                       HUN_US  EQU              0x0003E7
+   84 00000000         
+   85 00000000         ;FIFO constants
+   86 00000000         ;ALIGN 2
+   87 00000000 00000010 
+                       SIZE    EQU              16
+   88 00000000 00000001 
+                       SUCCESS EQU              1
+   89 00000000 00000000 
+                       FAIL    EQU              0
+   90 00000000         
+   91 00000000         ;GPIODATA Toggle bits
+   92 00000000 00000020 
                        GPIOP5  EQU              0x20
-   82 00000000         
-   83 00000000                 END
+   93 00000000         
+   94 00000000                 END
    48 00000000         ;includes functions I define
    49 00000000         ;INCLUDE my_Subroutines.s
    50 00000000         ;Include variables I define to startup file
@@ -306,6 +323,12 @@ ARM Macro Assembler    Page 5
    76 00000000         ;
    77 00000000         ; Indicate that the code in this file preserves 8-byte a
                        lignment of the stack.
+
+
+
+ARM Macro Assembler    Page 6 
+
+
    78 00000000         ;
    79 00000000         ;*******************************************************
                        ***********************
@@ -323,12 +346,6 @@ ARM Macro Assembler    Page 5
    89 00000000         
    90 00000000         ;*******************************************************
                        ***********************
-
-
-
-ARM Macro Assembler    Page 6 
-
-
    91 00000000         ;
    92 00000000         ; The vector table.
    93 00000000         ;
@@ -371,6 +388,12 @@ ARM Macro Assembler    Page 6
                                                             
   117 00000050 00000000        DCD              IntDefaultHandler ; GPIO Port E
                                                             
+
+
+
+ARM Macro Assembler    Page 7 
+
+
   118 00000054 00000000        DCD              UART0_Handler ; UART0 Rx and Tx
                                                             
   119 00000058 00000000        DCD              UART1_Handler ; UART1 Rx and Tx
@@ -388,12 +411,6 @@ ARM Macro Assembler    Page 6
                                                             ; PWM Generator 2
   126 00000074 00000000        DCD              IntDefaultHandler ; Quadrature 
                                                             Encoder 0
-
-
-
-ARM Macro Assembler    Page 7 
-
-
   127 00000078 00000000        DCD              IntDefaultHandler 
                                                             ; ADC Sequence 0
   128 0000007C 00000000        DCD              IntDefaultHandler 
@@ -436,6 +453,12 @@ ARM Macro Assembler    Page 7
                                                             ; UART2 Rx and Tx
   147 000000C8 00000000        DCD              IntDefaultHandler 
                                                             ; SSI1 Rx and Tx
+
+
+
+ARM Macro Assembler    Page 8 
+
+
   148 000000CC 00000000        DCD              IntDefaultHandler ; Timer 3 sub
                                                             timer A
   149 000000D0 00000000        DCD              IntDefaultHandler ; Timer 3 sub
@@ -453,12 +476,6 @@ ARM Macro Assembler    Page 7
   158 000000F4 00000000        DCD              IntDefaultHandler 
                                                             ; PWM Generator 3
   159 000000F8 00000000        DCD              IntDefaultHandler ; uDMA Softwa
-
-
-
-ARM Macro Assembler    Page 8 
-
-
                                                             re Transfer
   160 000000FC 00000000        DCD              IntDefaultHandler ; uDMA Error
   161 00000100 00000000        DCD              IntDefaultHandler 
@@ -501,6 +518,12 @@ ARM Macro Assembler    Page 8
                                                              and Slave
   183 00000158 00000000        DCD              Timer4A_Handler ; Timer 4 subti
                                                             mer A
+
+
+
+ARM Macro Assembler    Page 9 
+
+
   184 0000015C 00000000        DCD              Timer4B_Handler ; Timer 4 subti
                                                             mer B
   185 00000160 00000000        DCD              0           ; Reserved
@@ -518,12 +541,6 @@ ARM Macro Assembler    Page 8
   197 00000190 00000000        DCD              0           ; Reserved
   198 00000194 00000000        DCD              0           ; Reserved
   199 00000198 00000000        DCD              0           ; Reserved
-
-
-
-ARM Macro Assembler    Page 9 
-
-
   200 0000019C 00000000        DCD              0           ; Reserved
   201 000001A0 00000000        DCD              0           ; Reserved
   202 000001A4 00000000        DCD              0           ; Reserved
@@ -566,6 +583,12 @@ ARM Macro Assembler    Page 9
                                                              and Slave
   224 000001FC 00000000        DCD              IntDefaultHandler ; GPIO Port M
                                                             
+
+
+
+ARM Macro Assembler    Page 10 
+
+
   225 00000200 00000000        DCD              IntDefaultHandler ; GPIO Port N
                                                             
   226 00000204 00000000        DCD              IntDefaultHandler ; Quadrature 
@@ -583,12 +606,6 @@ ARM Macro Assembler    Page 9
   233 00000220 00000000        DCD              IntDefaultHandler 
                                                             ; GPIO Port P4
   234 00000224 00000000        DCD              IntDefaultHandler 
-
-
-
-ARM Macro Assembler    Page 10 
-
-
                                                             ; GPIO Port P5
   235 00000228 00000000        DCD              IntDefaultHandler 
                                                             ; GPIO Port P6
@@ -631,6 +648,12 @@ ARM Macro Assembler    Page 10
   252 0000026C         
   253 0000026C         ;*******************************************************
                        ***********************
+
+
+
+ARM Macro Assembler    Page 11 
+
+
   254 0000026C         ;
   255 0000026C         ; This is the code that gets called when the processor f
                        irst starts execution
@@ -648,12 +671,6 @@ ARM Macro Assembler    Page 10
   264 0000026C         ; floating-point registers (which will fault if floating
                        -point is not
   265 0000026C         ; enabled).  Any configuration of the floating-point uni
-
-
-
-ARM Macro Assembler    Page 11 
-
-
                        t using
   266 0000026C         ; DriverLib APIs must be done here prior to the floating
                        -point unit
@@ -696,6 +713,12 @@ ARM Macro Assembler    Page 11
   298 00000286         ;*******************************************************
                        ***********************
   299 00000286         ;
+
+
+
+ARM Macro Assembler    Page 12 
+
+
   300 00000286         ; This is the code that gets called when the processor r
                        eceives a NMI.  This
   301 00000286         ; simply enters an infinite loop, preserving the system 
@@ -713,12 +736,6 @@ ARM Macro Assembler    Page 11
   310 00000288         ; This is the code that gets called when the processor r
                        eceives a fault
   311 00000288         ; interrupt.  This simply enters an infinite loop, prese
-
-
-
-ARM Macro Assembler    Page 12 
-
-
                        rving the system state
   312 00000288         ; for examination by a debugger.
   313 00000288         ;
@@ -761,6 +778,12 @@ ARM Macro Assembler    Page 12
   343 0000028E         ;I added the Timer0A_Handler here. 
   344 0000028E         Timer0A_Handler
                                PROC
+
+
+
+ARM Macro Assembler    Page 13 
+
+
   345 0000028E         
   346 0000028E                 EXPORT           Timer0A_Handler
   347 0000028E         
@@ -778,12 +801,6 @@ ARM Macro Assembler    Page 12
   358 00000292         
   359 00000292         Timer4B_Handler
                                PROC
-
-
-
-ARM Macro Assembler    Page 13 
-
-
   360 00000292                 EXPORT           Timer4B_Handler
   361 00000292         
   362 00000292 4770            BX               LR
@@ -826,6 +843,12 @@ ARM Macro Assembler    Page 13
                        the heap and stack.
   394 00000298         ;
   395 00000298         ;*******************************************************
+
+
+
+ARM Macro Assembler    Page 14 
+
+
                        ***********************
   396 00000298                 AREA             |.text|, CODE, READONLY
   397 00000000         
@@ -843,12 +866,6 @@ ARM Macro Assembler    Page 13
   405 00000000         ;*******************************************************
                        ***********************
   406 00000000                 IF               :DEF: __MICROLIB
-
-
-
-ARM Macro Assembler    Page 14 
-
-
   411 00000000                 IMPORT           __use_two_region_memory
   412 00000000                 EXPORT           __user_initial_stackheap
   413 00000000         __user_initial_stackheap
@@ -1261,7 +1278,7 @@ FAIL 00000000
 
 Symbol: FAIL
    Definitions
-      At line 78 in file my_Constants.s
+      At line 89 in file my_Constants.s
    Uses
       None
 Comment: FAIL unused
@@ -1331,7 +1348,7 @@ GPIOP5 00000020
 
 Symbol: GPIOP5
    Definitions
-      At line 81 in file my_Constants.s
+      At line 92 in file my_Constants.s
    Uses
       None
 Comment: GPIOP5 unused
@@ -1491,9 +1508,9 @@ Symbol: GPTMTBV
    Uses
       None
 Comment: GPTMTBV unused
-Heap 00000000
+HUN_MS 001869FF
 
-Symbol: Heap
+Symbol: HUN_MS
    Definitions
 
 
@@ -1501,6 +1518,22 @@ Symbol: Heap
 ARM Macro Assembler    Page 5 Alphabetic symbol ordering
 Absolute symbols
 
+      At line 79 in file my_Constants.s
+   Uses
+      None
+Comment: HUN_MS unused
+HUN_US 000003E7
+
+Symbol: HUN_US
+   Definitions
+      At line 83 in file my_Constants.s
+   Uses
+      None
+Comment: HUN_US unused
+Heap 00000000
+
+Symbol: Heap
+   Definitions
       At line 38 in file startup_rvmdk.S
    Uses
       At line 72 in file startup_rvmdk.S
@@ -1530,6 +1563,28 @@ Symbol: NVIC_PRIn
    Uses
       None
 Comment: NVIC_PRIn unused
+ONE_MS 00003E7F
+
+Symbol: ONE_MS
+   Definitions
+      At line 77 in file my_Constants.s
+   Uses
+      None
+Comment: ONE_MS unused
+ONE_US 0000000F
+
+Symbol: ONE_US
+   Definitions
+      At line 81 in file my_Constants.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Absolute symbols
+
+      None
+Comment: ONE_US unused
 RCC 00000060
 
 Symbol: RCC
@@ -1560,19 +1615,13 @@ Symbol: RCGCUART
    Definitions
       At line 20 in file my_Constants.s
    Uses
-
-
-
-ARM Macro Assembler    Page 6 Alphabetic symbol ordering
-Absolute symbols
-
       None
 Comment: RCGCUART unused
 SIZE 00000010
 
 Symbol: SIZE
    Definitions
-      At line 76 in file my_Constants.s
+      At line 87 in file my_Constants.s
    Uses
       None
 Comment: SIZE unused
@@ -1594,6 +1643,12 @@ Symbol: STCURRENT
 Comment: STCURRENT unused
 STRELOAD 00000014
 
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Absolute symbols
+
+
 Symbol: STRELOAD
    Definitions
       At line 33 in file my_Constants.s
@@ -1604,7 +1659,7 @@ SUCCESS 00000001
 
 Symbol: SUCCESS
    Definitions
-      At line 77 in file my_Constants.s
+      At line 88 in file my_Constants.s
    Uses
       None
 Comment: SUCCESS unused
@@ -1626,12 +1681,6 @@ Symbol: SYS_CONTROL
 Comment: SYS_CONTROL unused
 SYS_PERIPH E000E000
 
-
-
-ARM Macro Assembler    Page 7 Alphabetic symbol ordering
-Absolute symbols
-
-
 Symbol: SYS_PERIPH
    Definitions
       At line 10 in file my_Constants.s
@@ -1648,6 +1697,28 @@ Symbol: Stack
       At line 97 in file startup_rvmdk.S
       At line 415 in file startup_rvmdk.S
 
+TEN_MS 000270FF
+
+Symbol: TEN_MS
+   Definitions
+      At line 78 in file my_Constants.s
+   Uses
+      None
+Comment: TEN_MS unused
+TEN_US 00000063
+
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Absolute symbols
+
+Symbol: TEN_US
+   Definitions
+      At line 82 in file my_Constants.s
+   Uses
+      None
+Comment: TEN_US unused
 TIMER16_0 40030000
 
 Symbol: TIMER16_0
@@ -1690,12 +1761,6 @@ Symbol: UARTCC
 Comment: UARTCC unused
 UARTCTL 00000030
 
-
-
-
-ARM Macro Assembler    Page 8 Alphabetic symbol ordering
-Absolute symbols
-
 Symbol: UARTCTL
    Definitions
       At line 61 in file my_Constants.s
@@ -1707,6 +1772,12 @@ UARTDR 00000000
 Symbol: UARTDR
    Definitions
       At line 72 in file my_Constants.s
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Absolute symbols
+
    Uses
       None
 Comment: UARTDR unused
@@ -1755,12 +1826,6 @@ UARTIM 00000038
 Symbol: UARTIM
    Definitions
       At line 69 in file my_Constants.s
-
-
-
-ARM Macro Assembler    Page 9 Alphabetic symbol ordering
-Absolute symbols
-
    Uses
       None
 Comment: UARTIM unused
@@ -1772,6 +1837,12 @@ Symbol: UARTLCRH
    Uses
       None
 Comment: UARTLCRH unused
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Absolute symbols
+
 UARTMIS 00000040
 
 Symbol: UARTMIS
@@ -1796,7 +1867,7 @@ Symbol: UARTRSR
    Uses
       None
 Comment: UARTRSR unused
-63 symbols
+69 symbols
 
 
 
@@ -1820,4 +1891,4 @@ Symbol: __use_two_region_memory
       None
 Comment: __use_two_region_memory unused
 2 symbols
-425 symbols in table
+431 symbols in table

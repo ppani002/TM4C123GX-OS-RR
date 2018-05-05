@@ -74,7 +74,9 @@ endloop	POP {r4, PC}
 		ENDP 
 
 ;This function initiates SysTick, the mechanism used to perform the context switch.
-;It sets the base frequency to 1ms.
+;PIOSC (16MHz) is setup by default in OS_InitClock. This function is setup to use 1ms
+;by default. If you wish to use 10ms, 100ms, or 1,10,100us with PIOSC, use the correct
+;value from my_Constants.s for STRELOAD.
 OS_InitContextSwitcher PROC
 		EXPORT OS_InitContextSwitcher
 
@@ -92,7 +94,8 @@ OS_InitContextSwitcher PROC
 	;Set reload value. STRELOAD
 	LDR r0, =SYS_PERIPH
 	LDR r1, [r0,#STRELOAD]
-	ORR r1, r1, #(1<<5);23) ;Set interrupt period here
+	MOV r2, #ONE_MS
+	ORR r1, r1, r2
 	STR r1, [r0,#STRELOAD]
 	
 	;Clear timer and interrupt flag. STCURRENT
