@@ -182,42 +182,44 @@ ARM Macro Assembler    Page 3
                        UARTDR  EQU              0x000
    73 00000000         
    74 00000000         ;Other values
-   75 00000000         ;Systick speed. x = (time here)*(basec clock here)
-   76 00000000         ;Microseconds (1)
-   77 00000000 00003E7F 
+   75 00000000         ;Systick speed
+   76 00000000         ;x = (time here)*(basec clock here). Can only hold 24 bi
+                       ts
+   77 00000000         ;Microseconds (1)
+   78 00000000 00003E7F 
                        ONE_MS  EQU              0x003E7F
-   78 00000000 000270FF 
+   79 00000000 000270FF 
                        TEN_MS  EQU              0x0270FF
-   79 00000000 001869FF 
+   80 00000000 001869FF 
                        HUN_MS  EQU              0x1869FF
-   80 00000000         ;Microseconds (1)
-   81 00000000 0000000F 
-                       ONE_US  EQU              0x00000F
+   81 00000000         ;Microseconds (1)
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-   82 00000000 00000063 
+   82 00000000 0000000F 
+                       ONE_US  EQU              0x00000F
+   83 00000000 00000063 
                        TEN_US  EQU              0x000063
-   83 00000000 000003E7 
+   84 00000000 000003E7 
                        HUN_US  EQU              0x0003E7
-   84 00000000         
-   85 00000000         ;FIFO constants
-   86 00000000         ;ALIGN 2
-   87 00000000 00000010 
+   85 00000000         
+   86 00000000         ;FIFO constants
+   87 00000000         ;ALIGN 2
+   88 00000000 00000010 
                        SIZE    EQU              16
-   88 00000000 00000001 
+   89 00000000 00000001 
                        SUCCESS EQU              1
-   89 00000000 00000000 
+   90 00000000 00000000 
                        FAIL    EQU              0
-   90 00000000         
-   91 00000000         ;GPIODATA Toggle bits
-   92 00000000 00000020 
+   91 00000000         
+   92 00000000         ;GPIODATA Toggle bits
+   93 00000000 00000020 
                        GPIOP5  EQU              0x20
-   93 00000000         
-   94 00000000                 END
+   94 00000000         
+   95 00000000                 END
     6 00000000         
     7 00000000                 IMPORT           tcbsArray   ;import array
     8 00000000                 IMPORT           RunThread   ;import pointer
@@ -256,14 +258,14 @@ ARM Macro Assembler    Page 4
                                                              system clock to OS
                                                             C
    34 00000016         
-   35 00000016         ;Set USESYSDIV. Selects no division
-   36 00000016         ;AND r1, r1, #(0<<22) ;clear it 22
 
 
 
 ARM Macro Assembler    Page 5 
 
 
+   35 00000016         ;Set USESYSDIV. Selects no division
+   36 00000016         ;AND r1, r1, #(0<<22) ;clear it 22
    37 00000016 F36F 5196       BFC              r1, #22, #1
    38 0000001A F041 0100       ORR              r1, r1, #(0<<22) ;No division f
                                                             or system clock. Th
@@ -321,325 +323,337 @@ ARM Macro Assembler    Page 5
    74 00000046                 ENDP
    75 00000046         
    76 00000046         ;This function initiates SysTick, the mechanism used to 
-                       perform the context switch.
-   77 00000046         ;It sets the base frequency to 1ms.
 
 
 
 ARM Macro Assembler    Page 6 
 
 
-   78 00000046         OS_InitContextSwitcher
+                       perform the context switch.
+   77 00000046         ;PIOSC (16MHz) is setup by default in OS_InitClock. This
+                        function is setup to use 1ms
+   78 00000046         ;by default. If you wish to use 10ms, 100ms, or 1,10,100
+                       us with PIOSC, use the correct
+   79 00000046         ;value from my_Constants.s for STRELOAD.
+   80 00000046         OS_InitContextSwitcher
                                PROC
-   79 00000046                 EXPORT           OS_InitContextSwitcher
-   80 00000046         
-   81 00000046         ;Push LR onto stack first
-   82 00000046 B510            PUSH             {r4, LR}
-   83 00000048         
-   84 00000048         ;RCC used to etsablish base clock
+   81 00000046                 EXPORT           OS_InitContextSwitcher
+   82 00000046         
+   83 00000046         ;Push LR onto stack first
+   84 00000046 B510            PUSH             {r4, LR}
    85 00000048         
-   86 00000048         ;Clear ENABLE bit. STCTRL
-   87 00000048 F04F 20E0       LDR              r0, =SYS_PERIPH
-   88 0000004C 6901            LDR              r1, [r0,#STCTRL]
-   89 0000004E F001 0100       AND              r1, r1, #0  ;Clear bit 0
-   90 00000052 6101            STR              r1, [r0, #STCTRL]
-   91 00000054         
-   92 00000054         ;Set reload value. STRELOAD
-   93 00000054 F04F 20E0       LDR              r0, =SYS_PERIPH
-   94 00000058 6941            LDR              r1, [r0,#STRELOAD]
-   95 0000005A F643 627F       MOV              r2, #ONE_MS
-   96 0000005E EA41 0102       ORR              r1, r1, r2
-   97 00000062 6141            STR              r1, [r0,#STRELOAD]
-   98 00000064         
-   99 00000064         ;Clear timer and interrupt flag. STCURRENT
-  100 00000064 F04F 20E0       LDR              r0, =SYS_PERIPH
-  101 00000068 6981            LDR              r1, [r0,#STCURRENT]
-  102 0000006A F041 0101       ORR              r1, r1, #1  ;Write any value to
+   86 00000048         ;RCC used to etsablish base clock
+   87 00000048         
+   88 00000048         ;Clear ENABLE bit. STCTRL
+   89 00000048 F04F 20E0       LDR              r0, =SYS_PERIPH
+   90 0000004C 6901            LDR              r1, [r0,#STCTRL]
+   91 0000004E F001 0100       AND              r1, r1, #0  ;Clear bit 0
+   92 00000052 6101            STR              r1, [r0, #STCTRL]
+   93 00000054         
+   94 00000054         ;Set reload value. STRELOAD
+   95 00000054         ;Set the period of the SysTick interrupt here with prede
+                       fined values in my_Constants.s, under Systick speed
+   96 00000054 F04F 20E0       LDR              r0, =SYS_PERIPH
+   97 00000058 6941            LDR              r1, [r0,#STRELOAD]
+   98 0000005A F643 627F       MOV              r2, #ONE_MS
+   99 0000005E EA41 0102       ORR              r1, r1, r2
+  100 00000062 6141            STR              r1, [r0,#STRELOAD]
+  101 00000064         
+  102 00000064         ;Clear timer and interrupt flag. STCURRENT
+  103 00000064 F04F 20E0       LDR              r0, =SYS_PERIPH
+  104 00000068 6981            LDR              r1, [r0,#STCURRENT]
+  105 0000006A F041 0101       ORR              r1, r1, #1  ;Write any value to
                                                              reset
-  103 0000006E 6181            STR              r1, [r0,#STCURRENT]
-  104 00000070         ;LDR r1, [r0,#STCURRENT]
-  105 00000070         
-  106 00000070         
-  107 00000070         ;Set CLK_SRC bit to use the system clock (look at InitCl
+  106 0000006E 6181            STR              r1, [r0,#STCURRENT]
+  107 00000070         ;LDR r1, [r0,#STCURRENT]
+  108 00000070         
+  109 00000070         
+  110 00000070         ;Set CLK_SRC bit to use the system clock (look at InitCl
                        ock). STCTRL
-  108 00000070 F04F 20E0       LDR              r0, =SYS_PERIPH
-  109 00000074 6901            LDR              r1, [r0,#STCTRL]
-  110 00000076 F36F 0182       BFC              r1, #2, #1
-  111 0000007A F041 0104       ORR              r1, r1, #(1<<2) ;bit 2
-  112 0000007E 6101            STR              r1, [r0,#STCTRL]
-  113 00000080         
-  114 00000080         ;Set INTEN bit to enable interrupts. STCTRL
-  115 00000080 F04F 20E0       LDR              r0, =SYS_PERIPH
-  116 00000084 6901            LDR              r1, [r0,#STCTRL]
-  117 00000086 F041 0102       ORR              r1, r1, #(1<<1) ;bit 1
-  118 0000008A 6101            STR              r1, [r0,#STCTRL]
-  119 0000008C         
-  120 0000008C         ;Set TICK priority field. SYSPRI3
-  121 0000008C F04F 20E0       LDR              r0, =SYS_PERIPH
-  122 00000090 F8D0 1D20       LDR              r1, [r0,#SYSPRI3]
-  123 00000094 F041 5100       ORR              r1, r1, #(1<<29) ;priority 1. T
+  111 00000070 F04F 20E0       LDR              r0, =SYS_PERIPH
+  112 00000074 6901            LDR              r1, [r0,#STCTRL]
+  113 00000076 F36F 0182       BFC              r1, #2, #1
+  114 0000007A F041 0104       ORR              r1, r1, #(1<<2) ;bit 2
+  115 0000007E 6101            STR              r1, [r0,#STCTRL]
+  116 00000080         
+  117 00000080         ;Set INTEN bit to enable interrupts. STCTRL
+  118 00000080 F04F 20E0       LDR              r0, =SYS_PERIPH
+  119 00000084 6901            LDR              r1, [r0,#STCTRL]
+  120 00000086 F041 0102       ORR              r1, r1, #(1<<1) ;bit 1
+  121 0000008A 6101            STR              r1, [r0,#STCTRL]
+  122 0000008C         
+  123 0000008C         ;Set TICK priority field. SYSPRI3
+  124 0000008C F04F 20E0       LDR              r0, =SYS_PERIPH
+  125 00000090 F8D0 1D20       LDR              r1, [r0,#SYSPRI3]
+  126 00000094 F041 5100       ORR              r1, r1, #(1<<29) ;priority 1. T
                                                             ICK begins at bit 2
                                                             9
-  124 00000098 F8C0 1D20       STR              r1, [r0,#SYSPRI3]
-  125 0000009C         
-  126 0000009C         ;Set ENABLE bit to turn SysTick on again. STCTRL
-  127 0000009C F04F 20E0       LDR              r0, =SYS_PERIPH
-  128 000000A0 6901            LDR              r1, [r0,#STCTRL]
-  129 000000A2 F041 0101       ORR              r1, r1, #1  ;bit 0
-  130 000000A6 6101            STR              r1, [r0,#STCTRL]
-  131 000000A8         
 
 
 
 ARM Macro Assembler    Page 7 
 
 
-  132 000000A8         
-  133 000000A8         ;Restore context
-  134 000000A8 E8BD 4010       POP              {r4, LR}
-  135 000000AC 4770            BX               LR
-  136 000000AE         
-  137 000000AE                 ENDP
-  138 000000AE         
-  139 000000AE         ;This function starts the RTOS by loading the context of
+  127 00000098 F8C0 1D20       STR              r1, [r0,#SYSPRI3]
+  128 0000009C         
+  129 0000009C         ;Set ENABLE bit to turn SysTick on again. STCTRL
+  130 0000009C F04F 20E0       LDR              r0, =SYS_PERIPH
+  131 000000A0 6901            LDR              r1, [r0,#STCTRL]
+  132 000000A2 F041 0101       ORR              r1, r1, #1  ;bit 0
+  133 000000A6 6101            STR              r1, [r0,#STCTRL]
+  134 000000A8         
+  135 000000A8         
+  136 000000A8         ;Restore context
+  137 000000A8 E8BD 4010       POP              {r4, LR}
+  138 000000AC 4770            BX               LR
+  139 000000AE         
+  140 000000AE                 ENDP
+  141 000000AE         
+  142 000000AE         ;This function starts the RTOS by loading the context of
                         the first
-  140 000000AE         ;thread
-  141 000000AE         OS_Launch
+  143 000000AE         ;thread
+  144 000000AE         OS_Launch
                                PROC
-  142 000000AE                 EXPORT           OS_Launch
-  143 000000AE         
-  144 000000AE         ;Get SP to the first tcb and load into SP register
-  145 000000AE 482E            LDR              r0, =RunThread
-  146 000000B0 6801            LDR              r1, [r0]
-  147 000000B2 F8D1 D000       LDR              sp, [r1]
-  148 000000B6         
-  149 000000B6         ;Pop the context
-  150 000000B6 E8BD 0FF0       POP              {r4-r11}
-  151 000000BA BC0F            POP              {r0-r3}
-  152 000000BC F85D CB04       POP              {r12}
-  153 000000C0 F85D EB04       POP              {r14}
-  154 000000C4 BD00            POP              {r15}
-  155 000000C6         
-  156 000000C6         ;Ignore xPSR (r"16", right after PC r15)
-  157 000000C6 B001            ADD              sp, sp, #4
-  158 000000C8         
-  159 000000C8         ;Reenable interrupts
-  160 000000C8 F7FF FFFE       BL               OS_EnableInterrupts
-  161 000000CC         
-  162 000000CC 4770            BX               LR
-  163 000000CE         
-  164 000000CE                 ENDP
-  165 000000CE         
-  166 000000CE         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  145 000000AE                 EXPORT           OS_Launch
+  146 000000AE         
+  147 000000AE         ;Get SP to the first tcb and load into SP register
+  148 000000AE 482E            LDR              r0, =RunThread
+  149 000000B0 6801            LDR              r1, [r0]
+  150 000000B2 F8D1 D000       LDR              sp, [r1]
+  151 000000B6         
+  152 000000B6         ;Pop the context
+  153 000000B6 E8BD 0FF0       POP              {r4-r11}
+  154 000000BA BC0F            POP              {r0-r3}
+  155 000000BC F85D CB04       POP              {r12}
+  156 000000C0 F85D EB04       POP              {r14}
+  157 000000C4 BD00            POP              {r15}
+  158 000000C6         
+  159 000000C6         ;Ignore xPSR (r"16", right after PC r15)
+  160 000000C6 B001            ADD              sp, sp, #4
+  161 000000C8         
+  162 000000C8         ;Reenable interrupts
+  163 000000C8 F7FF FFFE       BL               OS_EnableInterrupts
+  164 000000CC         
+  165 000000CC 4770            BX               LR
+  166 000000CE         
+  167 000000CE                 ENDP
+  168 000000CE         
+  169 000000CE         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                        ;;;;;;;;;;;;;;;;;
-  167 000000CE         ;;;;;;     Synch functions        ;;;;;;;;;;;;;;;;;;
-  168 000000CE         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  170 000000CE         ;;;;;;     Synch functions        ;;;;;;;;;;;;;;;;;;
+  171 000000CE         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                        ;;;;;;;;;;;;;;;;;
-  169 000000CE         
-  170 000000CE         ;This function is used to disable interrupts. Use it for
+  172 000000CE         
+  173 000000CE         ;This function is used to disable interrupts. Use it for
                         large critical sections without
-  171 000000CE         ;a shared resource
-  172 000000CE         OS_DisableInterrupts
+  174 000000CE         ;a shared resource
+  175 000000CE         OS_DisableInterrupts
                                PROC
-  173 000000CE                 EXPORT           OS_DisableInterrupts
-  174 000000CE         
-  175 000000CE         ;Save context
-  176 000000CE B510            PUSH             {r4, LR}
-  177 000000D0         
-  178 000000D0         ;CPSID I
-  179 000000D0 2001            MOVS             r0, #1
-  180 000000D2 F380 8810       MSR              PRIMASK, r0
-  181 000000D6         
-  182 000000D6         ;Restore context
-  183 000000D6 E8BD 4010       POP              {r4, LR}
-  184 000000DA 4770            BX               LR
+  176 000000CE                 EXPORT           OS_DisableInterrupts
+  177 000000CE         
+  178 000000CE         ;Save context
+  179 000000CE B510            PUSH             {r4, LR}
 
 
 
 ARM Macro Assembler    Page 8 
 
 
-  185 000000DC         
-  186 000000DC                 ENDP
-  187 000000DC         
-  188 000000DC         ;This function is used to enable interrupts after disabl
+  180 000000D0         
+  181 000000D0         ;CPSID I
+  182 000000D0 2001            MOVS             r0, #1
+  183 000000D2 F380 8810       MSR              PRIMASK, r0
+  184 000000D6         
+  185 000000D6         ;Restore context
+  186 000000D6 E8BD 4010       POP              {r4, LR}
+  187 000000DA 4770            BX               LR
+  188 000000DC         
+  189 000000DC                 ENDP
+  190 000000DC         
+  191 000000DC         ;This function is used to enable interrupts after disabl
                        ing them. Use this when you use 
-  189 000000DC         ;OS_DisableInterrupts
-  190 000000DC         OS_EnableInterrupts
+  192 000000DC         ;OS_DisableInterrupts
+  193 000000DC         OS_EnableInterrupts
                                PROC
-  191 000000DC                 EXPORT           OS_EnableInterrupts
-  192 000000DC         
-  193 000000DC         ;Save context
-  194 000000DC B510            PUSH             {r4, LR}
-  195 000000DE         
-  196 000000DE         ;CPSIE I
-  197 000000DE 2000            MOVS             r0, #0
-  198 000000E0 F380 8810       MSR              PRIMASK, r0
-  199 000000E4         
-  200 000000E4         ;Restore context
-  201 000000E4 E8BD 4010       POP              {r4, LR}
-  202 000000E8 4770            BX               LR
-  203 000000EA         
-  204 000000EA                 ENDP
-  205 000000EA         
-  206 000000EA         ;This function is used to disable interrupts. Use this f
+  194 000000DC                 EXPORT           OS_EnableInterrupts
+  195 000000DC         
+  196 000000DC         ;Save context
+  197 000000DC B510            PUSH             {r4, LR}
+  198 000000DE         
+  199 000000DE         ;CPSIE I
+  200 000000DE 2000            MOVS             r0, #0
+  201 000000E0 F380 8810       MSR              PRIMASK, r0
+  202 000000E4         
+  203 000000E4         ;Restore context
+  204 000000E4 E8BD 4010       POP              {r4, LR}
+  205 000000E8 4770            BX               LR
+  206 000000EA         
+  207 000000EA                 ENDP
+  208 000000EA         
+  209 000000EA         ;This function is used to disable interrupts. Use this f
                        or critical sections that
-  207 000000EA         ;share resources. Start of Critical Section
-  208 000000EA         ;r0 (return value) = PRIMASK (reenables interrupts later
+  210 000000EA         ;share resources. Start of Critical Section
+  211 000000EA         ;r0 (return value) = PRIMASK (reenables interrupts later
                        )
-  209 000000EA         OS_CriticalSectionS
+  212 000000EA         OS_CriticalSectionS
                                PROC
-  210 000000EA                 EXPORT           OS_CriticalSectionS
-  211 000000EA         
-  212 000000EA         ;Save context
-  213 000000EA B510            PUSH             {r4, LR}
-  214 000000EC         
-  215 000000EC F3EF 8010       MRS              r0, PRIMASK
-  216 000000F0         ;CPSID I
-  217 000000F0         
-  218 000000F0 F7FF FFFE       BL               OS_DisableInterrupts
-  219 000000F4         
-  220 000000F4         ;Restore context
-  221 000000F4 E8BD 4010       POP              {r4, LR}
-  222 000000F8 4770            BX               LR
-  223 000000FA         
-  224 000000FA                 ENDP
-  225 000000FA         
-  226 000000FA         ;This function is used to enable interrpts. Use it after
+  213 000000EA                 EXPORT           OS_CriticalSectionS
+  214 000000EA         
+  215 000000EA         ;Save context
+  216 000000EA B510            PUSH             {r4, LR}
+  217 000000EC         
+  218 000000EC F3EF 8010       MRS              r0, PRIMASK
+  219 000000F0         ;CPSID I
+  220 000000F0         
+  221 000000F0 F7FF FFFE       BL               OS_DisableInterrupts
+  222 000000F4         
+  223 000000F4         ;Restore context
+  224 000000F4 E8BD 4010       POP              {r4, LR}
+  225 000000F8 4770            BX               LR
+  226 000000FA         
+  227 000000FA                 ENDP
+  228 000000FA         
+  229 000000FA         ;This function is used to enable interrpts. Use it after
                         using OS_CriticalSection
-  227 000000FA         ;End of critical section
-  228 000000FA         ;r0 (input) = PRIMASK value from OS_CriticalSectionS
-  229 000000FA         OS_CriticalSectionE
-                               PROC
-  230 000000FA                 EXPORT           OS_CriticalSectionE
-  231 000000FA         
-  232 000000FA         ;Save context
-  233 000000FA B510            PUSH             {r4, LR}
-  234 000000FC         
-  235 000000FC F380 8810       MSR              PRIMASK, r0
-  236 00000100         
+  230 000000FA         ;End of critical section
+  231 000000FA         ;r0 (input) = PRIMASK value from OS_CriticalSectionS
+  232 000000FA         OS_CriticalSectionE
 
 
 
 ARM Macro Assembler    Page 9 
 
 
-  237 00000100         ;Restore context
-  238 00000100 E8BD 4010       POP              {r4, LR}
-  239 00000104 4770            BX               LR
-  240 00000106         
-  241 00000106                 ENDP
-  242 00000106         
-  243 00000106         ;This function is used to initialize the semaphore. Pass
-                        the define value in OS.h to initialize it
-  244 00000106         ;properly. They are basically the reason you are using t
-                       he semaphore.
-  245 00000106         ;r0 (input) = TO_COMPLETION (0), or THREAD_SYNC (1), or 
-                       MAILBOX (2)
-  246 00000106         ;r0 (return value) = value for semaphore
-  247 00000106         OS_SemaphoreInit
                                PROC
-  248 00000106                 EXPORT           OS_SemaphoreInit
-  249 00000106         
-  250 00000106         ;Save context
-  251 00000106 B510            PUSH             {r4, LR}
-  252 00000108         
-  253 00000108 F000 0203       AND              r2, r0, #3  ;Mask value so ther
+  233 000000FA                 EXPORT           OS_CriticalSectionE
+  234 000000FA         
+  235 000000FA         ;Save context
+  236 000000FA B510            PUSH             {r4, LR}
+  237 000000FC         
+  238 000000FC F380 8810       MSR              PRIMASK, r0
+  239 00000100         
+  240 00000100         ;Restore context
+  241 00000100 E8BD 4010       POP              {r4, LR}
+  242 00000104 4770            BX               LR
+  243 00000106         
+  244 00000106                 ENDP
+  245 00000106         
+  246 00000106         ;This function is used to initialize the semaphore. Pass
+                        the define value in OS.h to initialize it
+  247 00000106         ;properly. They are basically the reason you are using t
+                       he semaphore.
+  248 00000106         ;r0 (input) = TO_COMPLETION (0), or THREAD_SYNC (1), or 
+                       MAILBOX (2)
+  249 00000106         ;r0 (return value) = value for semaphore
+  250 00000106         OS_SemaphoreInit
+                               PROC
+  251 00000106                 EXPORT           OS_SemaphoreInit
+  252 00000106         
+  253 00000106         ;Save context
+  254 00000106 B510            PUSH             {r4, LR}
+  255 00000108         
+  256 00000108 F000 0203       AND              r2, r0, #3  ;Mask value so ther
                                                             e are only 2 valid 
                                                             bits for 0~2
-  254 0000010C         
-  255 0000010C E8DF F002       TBB              [pc,r2]
-  256 00000110         BranchTable
-  257 00000110 02              DCB              (Case_0 - BranchTable)/2 
+  257 0000010C         
+  258 0000010C E8DF F002       TBB              [pc,r2]
+  259 00000110         BranchTable
+  260 00000110 02              DCB              (Case_0 - BranchTable)/2 
                                                             ;TO_COMPLETION
-  258 00000111 07              DCB              (Case_1 - BranchTable)/2 
+  261 00000111 07              DCB              (Case_1 - BranchTable)/2 
                                                             ;THREAD_SYNC
-  259 00000112 0C              DCB              (Case_2 - BranchTable)/2 
+  262 00000112 0C              DCB              (Case_2 - BranchTable)/2 
                                                             ;MAILBOX
-  260 00000113 00              ALIGN
-  261 00000114         
-  262 00000114         Case_0
-  263 00000114 F000 0000       AND              r0, r0, #0
-  264 00000118 F040 0001       ORR              r0, r0, #1
-  265 0000011C E009            B                exit
-  266 0000011E         Case_1
-  267 0000011E F000 0000       AND              r0, r0, #0
-  268 00000122 F040 0000       ORR              r0, r0, #0
-  269 00000126 E004            B                exit
-  270 00000128         Case_2
-  271 00000128 F000 0000       AND              r0, r0, #0
-  272 0000012C F040 0000       ORR              r0, r0, #0
-  273 00000130 E7FF            B                exit
-  274 00000132         
-  275 00000132         exit                                 ;restore context
-  276 00000132 E8BD 4010       POP              {r4, LR}
-  277 00000136 4770            BX               LR
-  278 00000138         
-  279 00000138                 ENDP
-  280 00000138         
+  263 00000113 00              ALIGN
+  264 00000114         
+  265 00000114         Case_0
+  266 00000114 F000 0000       AND              r0, r0, #0
+  267 00000118 F040 0001       ORR              r0, r0, #1
+  268 0000011C E009            B                exit
+  269 0000011E         Case_1
+  270 0000011E F000 0000       AND              r0, r0, #0
+  271 00000122 F040 0000       ORR              r0, r0, #0
+  272 00000126 E004            B                exit
+  273 00000128         Case_2
+  274 00000128 F000 0000       AND              r0, r0, #0
+  275 0000012C F040 0000       ORR              r0, r0, #0
+  276 00000130 E7FF            B                exit
+  277 00000132         
+  278 00000132         exit                                 ;restore context
+  279 00000132 E8BD 4010       POP              {r4, LR}
+  280 00000136 4770            BX               LR
   281 00000138         
-  282 00000138         ;This function is used to lock non-reentrant code. Use t
-                       his when you need to synchronize your code
-  283 00000138         ;eg. synchronize sharing resources, eg. 
-  284 00000138         ;r0 (input) = the semaphore (it's basically just a count
-                       er)
 
 
 
 ARM Macro Assembler    Page 10 
 
 
-  285 00000138         OS_SemaphoreWait
+  282 00000138                 ENDP
+  283 00000138         
+  284 00000138         
+  285 00000138         ;This function is used to lock non-reentrant code. Use t
+                       his when you need to synchronize your code
+  286 00000138         ;eg. synchronize sharing resources, eg. 
+  287 00000138         ;r0 (input) = the semaphore (it's basically just a count
+                       er)
+  288 00000138         OS_SemaphoreWait
                                PROC
-  286 00000138                 EXPORT           OS_SemaphoreWait
-  287 00000138         
-  288 00000138         ;Load value of semaphore. 
-  289 00000138         ;If it's 0, semphaore is locked and spins
-  290 00000138         ;If it's 1, sempahore is unlocked and released
-  291 00000138 E850 1F00       LDREX            r1,[r0]
-  292 0000013C 2901            CMP              r1, #1
-  293 0000013E         
-  294 0000013E BF02            ITTT             EQ
-  295 00000140 3901            SUBEQ            r1, #1
-  296 00000142 E840 1200       STREXEQ          r2,r1,[r0]  ;if r2 = 0, then st
+  289 00000138                 EXPORT           OS_SemaphoreWait
+  290 00000138         
+  291 00000138         ;Load value of semaphore. 
+  292 00000138         ;If it's 0, semphaore is locked and spins
+  293 00000138         ;If it's 1, sempahore is unlocked and released
+  294 00000138 E850 1F00       LDREX            r1,[r0]
+  295 0000013C 2901            CMP              r1, #1
+  296 0000013E         
+  297 0000013E BF02            ITTT             EQ
+  298 00000140 3901            SUBEQ            r1, #1
+  299 00000142 E840 1200       STREXEQ          r2,r1,[r0]  ;if r2 = 0, then st
                                                             ore succeeded. Othe
                                                             rwise repeat
-  297 00000146 2A00            CMPEQ            r2, #0
-  298 00000148         
-  299 00000148 D1FE            BNE              OS_SemaphoreWait
-  300 0000014A         
-  301 0000014A 4770            BX               LR
-  302 0000014C         
-  303 0000014C                 ENDP
-  304 0000014C         
-  305 0000014C         ;This function is used to unlock non-reentrant code. Use
+  300 00000146 2A00            CMPEQ            r2, #0
+  301 00000148         
+  302 00000148 D1FE            BNE              OS_SemaphoreWait
+  303 0000014A         
+  304 0000014A 4770            BX               LR
+  305 0000014C         
+  306 0000014C                 ENDP
+  307 0000014C         
+  308 0000014C         ;This function is used to unlock non-reentrant code. Use
                         this when you need to synchronize your code
-  306 0000014C         ;
-  307 0000014C         ;r0 (input) = the semaphore (its basically just a counte
+  309 0000014C         ;
+  310 0000014C         ;r0 (input) = the semaphore (its basically just a counte
                        r)
-  308 0000014C         OS_SemaphoreSignal
+  311 0000014C         OS_SemaphoreSignal
                                PROC
-  309 0000014C                 EXPORT           OS_SemaphoreSignal
-  310 0000014C         
-  311 0000014C         ;Load the counter and add 1
-  312 0000014C E850 1F00       LDREX            r1,[r0]
-  313 00000150 F101 0101       ADD              r1, #1
-  314 00000154 E840 1200       STREX            r2, r1, [r0] ;If r2 = 0, store 
+  312 0000014C                 EXPORT           OS_SemaphoreSignal
+  313 0000014C         
+  314 0000014C         ;Load the counter and add 1
+  315 0000014C E850 1F00       LDREX            r1,[r0]
+  316 00000150 F101 0101       ADD              r1, #1
+  317 00000154 E840 1200       STREX            r2, r1, [r0] ;If r2 = 0, store 
                                                             succeeded. Otherwis
                                                             e, repeat.
-  315 00000158 2A00            CMP              r2, #0
-  316 0000015A D1FE            BNE              OS_SemaphoreSignal
-  317 0000015C         
-  318 0000015C 4770            BX               LR
-  319 0000015E         
-  320 0000015E                 ENDP
-  321 0000015E         
-  322 0000015E                 END
+  318 00000158 2A00            CMP              r2, #0
+  319 0000015A D1FE            BNE              OS_SemaphoreSignal
+  320 0000015C         
+  321 0000015C 4770            BX               LR
+  322 0000015E         
+  323 0000015E                 ENDP
+  324 0000015E         
+  325 0000015E                 END
               00 00 400FE000 
               00000000 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\os_1.d -o.\objects\os_1.o -IC:\ti\TivaWare_C_Series-2
+
+
+
+ARM Macro Assembler    Page 11 
+
+
 .1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE -IC:\Keil_v5\ARM\PACK\
 Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123 -IC:\Keil_v5\ARM\CMSIS\Include --pre
 define="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 521" --predefine="TM
@@ -669,35 +683,35 @@ BranchTable 00000110
 
 Symbol: BranchTable
    Definitions
-      At line 256 in file OS.s
-   Uses
-      At line 257 in file OS.s
-      At line 258 in file OS.s
       At line 259 in file OS.s
+   Uses
+      At line 260 in file OS.s
+      At line 261 in file OS.s
+      At line 262 in file OS.s
 
 Case_0 00000114
 
 Symbol: Case_0
    Definitions
-      At line 262 in file OS.s
+      At line 265 in file OS.s
    Uses
-      At line 257 in file OS.s
+      At line 260 in file OS.s
 Comment: Case_0 used once
 Case_1 0000011E
 
 Symbol: Case_1
    Definitions
-      At line 266 in file OS.s
+      At line 269 in file OS.s
    Uses
-      At line 258 in file OS.s
+      At line 261 in file OS.s
 Comment: Case_1 used once
 Case_2 00000128
 
 Symbol: Case_2
    Definitions
-      At line 270 in file OS.s
+      At line 273 in file OS.s
    Uses
-      At line 259 in file OS.s
+      At line 262 in file OS.s
 Comment: Case_2 used once
 My_Constants 00000000
 
@@ -711,17 +725,17 @@ OS_CriticalSectionE 000000FA
 
 Symbol: OS_CriticalSectionE
    Definitions
-      At line 229 in file OS.s
+      At line 232 in file OS.s
    Uses
-      At line 230 in file OS.s
+      At line 233 in file OS.s
 Comment: OS_CriticalSectionE used once
 OS_CriticalSectionS 000000EA
 
 Symbol: OS_CriticalSectionS
    Definitions
-      At line 209 in file OS.s
+      At line 212 in file OS.s
    Uses
-      At line 210 in file OS.s
+      At line 213 in file OS.s
 Comment: OS_CriticalSectionS used once
 OS_DisableInterrupts 000000CE
 
@@ -733,19 +747,19 @@ Relocatable symbols
 
 Symbol: OS_DisableInterrupts
    Definitions
-      At line 172 in file OS.s
+      At line 175 in file OS.s
    Uses
-      At line 173 in file OS.s
-      At line 218 in file OS.s
+      At line 176 in file OS.s
+      At line 221 in file OS.s
 
 OS_EnableInterrupts 000000DC
 
 Symbol: OS_EnableInterrupts
    Definitions
-      At line 190 in file OS.s
+      At line 193 in file OS.s
    Uses
-      At line 160 in file OS.s
-      At line 191 in file OS.s
+      At line 163 in file OS.s
+      At line 194 in file OS.s
 
 OS_InitClock 00000000
 
@@ -759,9 +773,9 @@ OS_InitContextSwitcher 00000046
 
 Symbol: OS_InitContextSwitcher
    Definitions
-      At line 78 in file OS.s
+      At line 80 in file OS.s
    Uses
-      At line 79 in file OS.s
+      At line 81 in file OS.s
 Comment: OS_InitContextSwitcher used once
 OS_InitStack 00000026
 
@@ -775,17 +789,17 @@ OS_Launch 000000AE
 
 Symbol: OS_Launch
    Definitions
-      At line 141 in file OS.s
+      At line 144 in file OS.s
    Uses
-      At line 142 in file OS.s
+      At line 145 in file OS.s
 Comment: OS_Launch used once
 OS_SemaphoreInit 00000106
 
 Symbol: OS_SemaphoreInit
    Definitions
-      At line 247 in file OS.s
+      At line 250 in file OS.s
    Uses
-      At line 248 in file OS.s
+      At line 251 in file OS.s
 Comment: OS_SemaphoreInit used once
 OS_SemaphoreSignal 0000014C
 
@@ -797,19 +811,19 @@ Relocatable symbols
 
 Symbol: OS_SemaphoreSignal
    Definitions
-      At line 308 in file OS.s
+      At line 311 in file OS.s
    Uses
-      At line 309 in file OS.s
-      At line 316 in file OS.s
+      At line 312 in file OS.s
+      At line 319 in file OS.s
 
 OS_SemaphoreWait 00000138
 
 Symbol: OS_SemaphoreWait
    Definitions
-      At line 285 in file OS.s
+      At line 288 in file OS.s
    Uses
-      At line 286 in file OS.s
-      At line 299 in file OS.s
+      At line 289 in file OS.s
+      At line 302 in file OS.s
 
 endloop 00000044
 
@@ -823,11 +837,11 @@ exit 00000132
 
 Symbol: exit
    Definitions
-      At line 275 in file OS.s
+      At line 278 in file OS.s
    Uses
-      At line 265 in file OS.s
-      At line 269 in file OS.s
-      At line 273 in file OS.s
+      At line 268 in file OS.s
+      At line 272 in file OS.s
+      At line 276 in file OS.s
 
 loop 0000002E
 
@@ -864,7 +878,7 @@ FAIL 00000000
 
 Symbol: FAIL
    Definitions
-      At line 89 in file my_Constants.s
+      At line 90 in file my_Constants.s
    Uses
       None
 Comment: FAIL unused
@@ -934,7 +948,7 @@ GPIOP5 00000020
 
 Symbol: GPIOP5
    Definitions
-      At line 92 in file my_Constants.s
+      At line 93 in file my_Constants.s
    Uses
       None
 Comment: GPIOP5 unused
@@ -1104,7 +1118,7 @@ Symbol: HUN_MS
 ARM Macro Assembler    Page 5 Alphabetic symbol ordering
 Absolute symbols
 
-      At line 79 in file my_Constants.s
+      At line 80 in file my_Constants.s
    Uses
       None
 Comment: HUN_MS unused
@@ -1112,7 +1126,7 @@ HUN_US 000003E7
 
 Symbol: HUN_US
    Definitions
-      At line 83 in file my_Constants.s
+      At line 84 in file my_Constants.s
    Uses
       None
 Comment: HUN_US unused
@@ -1144,15 +1158,15 @@ ONE_MS 00003E7F
 
 Symbol: ONE_MS
    Definitions
-      At line 77 in file my_Constants.s
+      At line 78 in file my_Constants.s
    Uses
-      At line 95 in file OS.s
+      At line 98 in file OS.s
 Comment: ONE_MS used once
 ONE_US 0000000F
 
 Symbol: ONE_US
    Definitions
-      At line 81 in file my_Constants.s
+      At line 82 in file my_Constants.s
    Uses
       None
 Comment: ONE_US unused
@@ -1199,7 +1213,7 @@ SIZE 00000010
 
 Symbol: SIZE
    Definitions
-      At line 87 in file my_Constants.s
+      At line 88 in file my_Constants.s
    Uses
       None
 Comment: SIZE unused
@@ -1209,14 +1223,14 @@ Symbol: STCTRL
    Definitions
       At line 32 in file my_Constants.s
    Uses
-      At line 88 in file OS.s
       At line 90 in file OS.s
-      At line 109 in file OS.s
+      At line 92 in file OS.s
       At line 112 in file OS.s
-      At line 116 in file OS.s
-      At line 118 in file OS.s
-      At line 128 in file OS.s
-      At line 130 in file OS.s
+      At line 115 in file OS.s
+      At line 119 in file OS.s
+      At line 121 in file OS.s
+      At line 131 in file OS.s
+      At line 133 in file OS.s
 
 STCURRENT 00000018
 
@@ -1224,8 +1238,8 @@ Symbol: STCURRENT
    Definitions
       At line 34 in file my_Constants.s
    Uses
-      At line 101 in file OS.s
-      At line 103 in file OS.s
+      At line 104 in file OS.s
+      At line 106 in file OS.s
 
 STRELOAD 00000014
 
@@ -1239,14 +1253,14 @@ Symbol: STRELOAD
    Definitions
       At line 33 in file my_Constants.s
    Uses
-      At line 94 in file OS.s
       At line 97 in file OS.s
+      At line 100 in file OS.s
 
 SUCCESS 00000001
 
 Symbol: SUCCESS
    Definitions
-      At line 88 in file my_Constants.s
+      At line 89 in file my_Constants.s
    Uses
       None
 Comment: SUCCESS unused
@@ -1256,8 +1270,8 @@ Symbol: SYSPRI3
    Definitions
       At line 35 in file my_Constants.s
    Uses
-      At line 122 in file OS.s
-      At line 124 in file OS.s
+      At line 125 in file OS.s
+      At line 127 in file OS.s
 
 SYS_CONTROL 400FE000
 
@@ -1273,19 +1287,19 @@ Symbol: SYS_PERIPH
    Definitions
       At line 10 in file my_Constants.s
    Uses
-      At line 87 in file OS.s
-      At line 93 in file OS.s
-      At line 100 in file OS.s
-      At line 108 in file OS.s
-      At line 115 in file OS.s
-      At line 121 in file OS.s
-      At line 127 in file OS.s
+      At line 89 in file OS.s
+      At line 96 in file OS.s
+      At line 103 in file OS.s
+      At line 111 in file OS.s
+      At line 118 in file OS.s
+      At line 124 in file OS.s
+      At line 130 in file OS.s
 
 TEN_MS 000270FF
 
 Symbol: TEN_MS
    Definitions
-      At line 78 in file my_Constants.s
+      At line 79 in file my_Constants.s
    Uses
       None
 Comment: TEN_MS unused
@@ -1299,7 +1313,7 @@ Symbol: TEN_US
 ARM Macro Assembler    Page 8 Alphabetic symbol ordering
 Absolute symbols
 
-      At line 82 in file my_Constants.s
+      At line 83 in file my_Constants.s
    Uses
       None
 Comment: TEN_US unused
@@ -1464,7 +1478,7 @@ Symbol: RunThread
    Definitions
       At line 8 in file OS.s
    Uses
-      At line 145 in file OS.s
+      At line 148 in file OS.s
 Comment: RunThread used once
 tcbsArray 00000000
 

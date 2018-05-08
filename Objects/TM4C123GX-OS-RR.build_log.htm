@@ -28,17 +28,28 @@ Project File Date:  05/01/2018
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
 assembling OS.s...
-OS.s(322): warning: A1581W: Added 2 bytes of padding at address 0x15e
-linking...
-Program Size: Code=956 RO-data=16 RW-data=0 ZI-data=608  
-".\Objects\TM4C123GX-OS-RR.axf" - 0 Error(s), 1 Warning(s).
+OS.s(325): warning: A1581W: Added 2 bytes of padding at address 0x15e
+compiling userCode.c...
+userCode.c(7): warning:  #223-D: function "OS_InitClock" declared implicitly
+  	OS_InitClock();
+userCode.c(8): error:  #165: too few arguments in function call
+  	OS_InitTCB();
+userCode.c(9): warning:  #223-D: function "OS_InitStack" declared implicitly
+  	OS_InitStack();
+userCode.c(11): warning:  #223-D: function "OS_InitContextSwitcher" declared implicitly
+  	OS_InitContextSwitcher();
+userCode.c(12): warning:  #223-D: function "OS_Launch" declared implicitly
+  	OS_Launch();
+userCode.c: 4 warnings, 1 error
+".\Objects\TM4C123GX-OS-RR.axf" - 1 Error(s), 5 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\ti\TivaWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE
   C:\Keil_v5\ARM\PACK\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:00
+Target not created.
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

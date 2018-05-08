@@ -176,42 +176,44 @@ ARM Macro Assembler    Page 3
                        UARTDR  EQU              0x000
    73 00000000         
    74 00000000         ;Other values
-   75 00000000         ;Systick speed. x = (time here)*(basec clock here)
-   76 00000000         ;Microseconds (1)
-   77 00000000 00003E7F 
+   75 00000000         ;Systick speed
+   76 00000000         ;x = (time here)*(basec clock here). Can only hold 24 bi
+                       ts
+   77 00000000         ;Microseconds (1)
+   78 00000000 00003E7F 
                        ONE_MS  EQU              0x003E7F
-   78 00000000 000270FF 
+   79 00000000 000270FF 
                        TEN_MS  EQU              0x0270FF
-   79 00000000 001869FF 
+   80 00000000 001869FF 
                        HUN_MS  EQU              0x1869FF
-   80 00000000         ;Microseconds (1)
-   81 00000000 0000000F 
+   81 00000000         ;Microseconds (1)
+   82 00000000 0000000F 
                        ONE_US  EQU              0x00000F
-   82 00000000 00000063 
+   83 00000000 00000063 
                        TEN_US  EQU              0x000063
-   83 00000000 000003E7 
+   84 00000000 000003E7 
                        HUN_US  EQU              0x0003E7
-   84 00000000         
-   85 00000000         ;FIFO constants
 
 
 
 ARM Macro Assembler    Page 4 
 
 
-   86 00000000         ;ALIGN 2
-   87 00000000 00000010 
+   85 00000000         
+   86 00000000         ;FIFO constants
+   87 00000000         ;ALIGN 2
+   88 00000000 00000010 
                        SIZE    EQU              16
-   88 00000000 00000001 
+   89 00000000 00000001 
                        SUCCESS EQU              1
-   89 00000000 00000000 
+   90 00000000 00000000 
                        FAIL    EQU              0
-   90 00000000         
-   91 00000000         ;GPIODATA Toggle bits
-   92 00000000 00000020 
+   91 00000000         
+   92 00000000         ;GPIODATA Toggle bits
+   93 00000000 00000020 
                        GPIOP5  EQU              0x20
-   93 00000000         
-   94 00000000                 END
+   94 00000000         
+   95 00000000                 END
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\my_constants.d -o.\objects\my_constants.o -IC:\ti\Tiv
 aWare_C_Series-2.1.4.178\examples\boards\my_projects\TM4C123GX-OS-RR\RTE -IC:\K
@@ -260,7 +262,7 @@ FAIL 00000000
 
 Symbol: FAIL
    Definitions
-      At line 89 in file my_Constants.s
+      At line 90 in file my_Constants.s
    Uses
       None
 Comment: FAIL unused
@@ -330,7 +332,7 @@ GPIOP5 00000020
 
 Symbol: GPIOP5
    Definitions
-      At line 92 in file my_Constants.s
+      At line 93 in file my_Constants.s
    Uses
       None
 Comment: GPIOP5 unused
@@ -500,7 +502,7 @@ Symbol: HUN_MS
 ARM Macro Assembler    Page 5 Alphabetic symbol ordering
 Absolute symbols
 
-      At line 79 in file my_Constants.s
+      At line 80 in file my_Constants.s
    Uses
       None
 Comment: HUN_MS unused
@@ -508,7 +510,7 @@ HUN_US 000003E7
 
 Symbol: HUN_US
    Definitions
-      At line 83 in file my_Constants.s
+      At line 84 in file my_Constants.s
    Uses
       None
 Comment: HUN_US unused
@@ -540,7 +542,7 @@ ONE_MS 00003E7F
 
 Symbol: ONE_MS
    Definitions
-      At line 77 in file my_Constants.s
+      At line 78 in file my_Constants.s
    Uses
       None
 Comment: ONE_MS unused
@@ -548,7 +550,7 @@ ONE_US 0000000F
 
 Symbol: ONE_US
    Definitions
-      At line 81 in file my_Constants.s
+      At line 82 in file my_Constants.s
    Uses
       None
 Comment: ONE_US unused
@@ -594,7 +596,7 @@ SIZE 00000010
 
 Symbol: SIZE
    Definitions
-      At line 87 in file my_Constants.s
+      At line 88 in file my_Constants.s
    Uses
       None
 Comment: SIZE unused
@@ -632,7 +634,7 @@ Absolute symbols
 
 Symbol: SUCCESS
    Definitions
-      At line 88 in file my_Constants.s
+      At line 89 in file my_Constants.s
    Uses
       None
 Comment: SUCCESS unused
@@ -664,7 +666,7 @@ TEN_MS 000270FF
 
 Symbol: TEN_MS
    Definitions
-      At line 78 in file my_Constants.s
+      At line 79 in file my_Constants.s
    Uses
       None
 Comment: TEN_MS unused
@@ -672,7 +674,7 @@ TEN_US 00000063
 
 Symbol: TEN_US
    Definitions
-      At line 82 in file my_Constants.s
+      At line 83 in file my_Constants.s
    Uses
       None
 Comment: TEN_US unused

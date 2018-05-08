@@ -251,42 +251,44 @@ ARM Macro Assembler    Page 4
                        UARTDR  EQU              0x000
    73 00000000         
    74 00000000         ;Other values
-   75 00000000         ;Systick speed. x = (time here)*(basec clock here)
-   76 00000000         ;Microseconds (1)
-   77 00000000 00003E7F 
+   75 00000000         ;Systick speed
+   76 00000000         ;x = (time here)*(basec clock here). Can only hold 24 bi
+                       ts
+   77 00000000         ;Microseconds (1)
+   78 00000000 00003E7F 
                        ONE_MS  EQU              0x003E7F
-   78 00000000 000270FF 
-                       TEN_MS  EQU              0x0270FF
-   79 00000000 001869FF 
+   79 00000000 000270FF 
 
 
 
 ARM Macro Assembler    Page 5 
 
 
+                       TEN_MS  EQU              0x0270FF
+   80 00000000 001869FF 
                        HUN_MS  EQU              0x1869FF
-   80 00000000         ;Microseconds (1)
-   81 00000000 0000000F 
+   81 00000000         ;Microseconds (1)
+   82 00000000 0000000F 
                        ONE_US  EQU              0x00000F
-   82 00000000 00000063 
+   83 00000000 00000063 
                        TEN_US  EQU              0x000063
-   83 00000000 000003E7 
+   84 00000000 000003E7 
                        HUN_US  EQU              0x0003E7
-   84 00000000         
-   85 00000000         ;FIFO constants
-   86 00000000         ;ALIGN 2
-   87 00000000 00000010 
+   85 00000000         
+   86 00000000         ;FIFO constants
+   87 00000000         ;ALIGN 2
+   88 00000000 00000010 
                        SIZE    EQU              16
-   88 00000000 00000001 
+   89 00000000 00000001 
                        SUCCESS EQU              1
-   89 00000000 00000000 
+   90 00000000 00000000 
                        FAIL    EQU              0
-   90 00000000         
-   91 00000000         ;GPIODATA Toggle bits
-   92 00000000 00000020 
+   91 00000000         
+   92 00000000         ;GPIODATA Toggle bits
+   93 00000000 00000020 
                        GPIOP5  EQU              0x20
-   93 00000000         
-   94 00000000                 END
+   94 00000000         
+   95 00000000                 END
    48 00000000         ;includes functions I define
    49 00000000         ;INCLUDE my_Subroutines.s
    50 00000000         ;Include variables I define to startup file
@@ -321,14 +323,14 @@ ARM Macro Assembler    Page 5
    75 00000000         ;*******************************************************
                        ***********************
    76 00000000         ;
-   77 00000000         ; Indicate that the code in this file preserves 8-byte a
-                       lignment of the stack.
 
 
 
 ARM Macro Assembler    Page 6 
 
 
+   77 00000000         ; Indicate that the code in this file preserves 8-byte a
+                       lignment of the stack.
    78 00000000         ;
    79 00000000         ;*******************************************************
                        ***********************
@@ -386,14 +388,14 @@ ARM Macro Assembler    Page 6
                                                             
   116 0000004C 00000000        DCD              IntDefaultHandler ; GPIO Port D
                                                             
-  117 00000050 00000000        DCD              IntDefaultHandler ; GPIO Port E
-                                                            
 
 
 
 ARM Macro Assembler    Page 7 
 
 
+  117 00000050 00000000        DCD              IntDefaultHandler ; GPIO Port E
+                                                            
   118 00000054 00000000        DCD              UART0_Handler ; UART0 Rx and Tx
                                                             
   119 00000058 00000000        DCD              UART1_Handler ; UART1 Rx and Tx
@@ -451,14 +453,14 @@ ARM Macro Assembler    Page 7
                                                             
   146 000000C4 00000000        DCD              IntDefaultHandler 
                                                             ; UART2 Rx and Tx
-  147 000000C8 00000000        DCD              IntDefaultHandler 
-                                                            ; SSI1 Rx and Tx
 
 
 
 ARM Macro Assembler    Page 8 
 
 
+  147 000000C8 00000000        DCD              IntDefaultHandler 
+                                                            ; SSI1 Rx and Tx
   148 000000CC 00000000        DCD              IntDefaultHandler ; Timer 3 sub
                                                             timer A
   149 000000D0 00000000        DCD              IntDefaultHandler ; Timer 3 sub
@@ -516,14 +518,14 @@ ARM Macro Assembler    Page 8
                                                              and Slave
   182 00000154 00000000        DCD              IntDefaultHandler ; I2C3 Master
                                                              and Slave
-  183 00000158 00000000        DCD              Timer4A_Handler ; Timer 4 subti
-                                                            mer A
 
 
 
 ARM Macro Assembler    Page 9 
 
 
+  183 00000158 00000000        DCD              Timer4A_Handler ; Timer 4 subti
+                                                            mer A
   184 0000015C 00000000        DCD              Timer4B_Handler ; Timer 4 subti
                                                             mer B
   185 00000160 00000000        DCD              0           ; Reserved
@@ -581,14 +583,14 @@ ARM Macro Assembler    Page 9
                                                              and Slave
   223 000001F8 00000000        DCD              IntDefaultHandler ; I2C5 Master
                                                              and Slave
-  224 000001FC 00000000        DCD              IntDefaultHandler ; GPIO Port M
-                                                            
 
 
 
 ARM Macro Assembler    Page 10 
 
 
+  224 000001FC 00000000        DCD              IntDefaultHandler ; GPIO Port M
+                                                            
   225 00000200 00000000        DCD              IntDefaultHandler ; GPIO Port N
                                                             
   226 00000204 00000000        DCD              IntDefaultHandler ; Quadrature 
@@ -646,14 +648,14 @@ ARM Macro Assembler    Page 10
   251 00000268 00000000        DCD              IntDefaultHandler ; PWM 1 Fault
                                                             
   252 0000026C         
-  253 0000026C         ;*******************************************************
-                       ***********************
 
 
 
 ARM Macro Assembler    Page 11 
 
 
+  253 0000026C         ;*******************************************************
+                       ***********************
   254 0000026C         ;
   255 0000026C         ; This is the code that gets called when the processor f
                        irst starts execution
@@ -711,14 +713,14 @@ ARM Macro Assembler    Page 11
   296 00000282 F7FF BFFE       B                __main
   297 00000286         
   298 00000286         ;*******************************************************
-                       ***********************
-  299 00000286         ;
 
 
 
 ARM Macro Assembler    Page 12 
 
 
+                       ***********************
+  299 00000286         ;
   300 00000286         ; This is the code that gets called when the processor r
                        eceives a NMI.  This
   301 00000286         ; simply enters an infinite loop, preserving the system 
@@ -776,14 +778,14 @@ ARM Macro Assembler    Page 12
   341 0000028E         
   342 0000028E         
   343 0000028E         ;I added the Timer0A_Handler here. 
-  344 0000028E         Timer0A_Handler
-                               PROC
 
 
 
 ARM Macro Assembler    Page 13 
 
 
+  344 0000028E         Timer0A_Handler
+                               PROC
   345 0000028E         
   346 0000028E                 EXPORT           Timer0A_Handler
   347 0000028E         
@@ -841,14 +843,14 @@ ARM Macro Assembler    Page 13
   392 00000298         ;
   393 00000298         ; Some code in the normal code section for initializing 
                        the heap and stack.
-  394 00000298         ;
-  395 00000298         ;*******************************************************
 
 
 
 ARM Macro Assembler    Page 14 
 
 
+  394 00000298         ;
+  395 00000298         ;*******************************************************
                        ***********************
   396 00000298                 AREA             |.text|, CODE, READONLY
   397 00000000         
@@ -1278,7 +1280,7 @@ FAIL 00000000
 
 Symbol: FAIL
    Definitions
-      At line 89 in file my_Constants.s
+      At line 90 in file my_Constants.s
    Uses
       None
 Comment: FAIL unused
@@ -1348,7 +1350,7 @@ GPIOP5 00000020
 
 Symbol: GPIOP5
    Definitions
-      At line 92 in file my_Constants.s
+      At line 93 in file my_Constants.s
    Uses
       None
 Comment: GPIOP5 unused
@@ -1518,7 +1520,7 @@ Symbol: HUN_MS
 ARM Macro Assembler    Page 5 Alphabetic symbol ordering
 Absolute symbols
 
-      At line 79 in file my_Constants.s
+      At line 80 in file my_Constants.s
    Uses
       None
 Comment: HUN_MS unused
@@ -1526,7 +1528,7 @@ HUN_US 000003E7
 
 Symbol: HUN_US
    Definitions
-      At line 83 in file my_Constants.s
+      At line 84 in file my_Constants.s
    Uses
       None
 Comment: HUN_US unused
@@ -1567,7 +1569,7 @@ ONE_MS 00003E7F
 
 Symbol: ONE_MS
    Definitions
-      At line 77 in file my_Constants.s
+      At line 78 in file my_Constants.s
    Uses
       None
 Comment: ONE_MS unused
@@ -1575,7 +1577,7 @@ ONE_US 0000000F
 
 Symbol: ONE_US
    Definitions
-      At line 81 in file my_Constants.s
+      At line 82 in file my_Constants.s
    Uses
 
 
@@ -1621,7 +1623,7 @@ SIZE 00000010
 
 Symbol: SIZE
    Definitions
-      At line 87 in file my_Constants.s
+      At line 88 in file my_Constants.s
    Uses
       None
 Comment: SIZE unused
@@ -1659,7 +1661,7 @@ SUCCESS 00000001
 
 Symbol: SUCCESS
    Definitions
-      At line 88 in file my_Constants.s
+      At line 89 in file my_Constants.s
    Uses
       None
 Comment: SUCCESS unused
@@ -1701,7 +1703,7 @@ TEN_MS 000270FF
 
 Symbol: TEN_MS
    Definitions
-      At line 78 in file my_Constants.s
+      At line 79 in file my_Constants.s
    Uses
       None
 Comment: TEN_MS unused
@@ -1715,7 +1717,7 @@ Absolute symbols
 
 Symbol: TEN_US
    Definitions
-      At line 82 in file my_Constants.s
+      At line 83 in file my_Constants.s
    Uses
       None
 Comment: TEN_US unused

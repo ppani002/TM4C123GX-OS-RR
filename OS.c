@@ -1,5 +1,4 @@
 #include "OS.h"
-#include <stdint.h>
 
 //This structure is the Thread Control Block. It contains information
 //on the thread, such as the stack location, it's time slice, it's task,
@@ -27,13 +26,12 @@ int32_t timeSlices[THREADSIZE];
 //Note: void pointer arithmatic is not supported. 
 void (*tasksArray[THREADSIZE])(void);
 
-void OS_InitTCB(int *tSlices, void (*tasks)(void))
+void OS_InitTCB(void (*tasks)(void))
 {
 	int i = 0;
 	for(/*int i = 0*/; i<THREADSIZE; i++)
 	{
 		//Set fields for each thread context in TCB
-		tcbsArray[i].time = *(tSlices+i);
 		tcbsArray[i].task = tasksArray[i];//*(tasks+i);
 	}
 }

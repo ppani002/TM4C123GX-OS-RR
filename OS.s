@@ -63,8 +63,8 @@ loop	CMP r0, r4
 		SUB sp, #8 ;This is where task will be saved, in PC slot of stack
 		
 		;Store task from TCB to PC slot in stack
-		LDR sp, [r1,#8]	;offset of 8 to reach task in TCB
-		ADD r1, #32 ; assuming each data in tcb is 32 bits, total is 32 words in RAM for next tcb. tcbsArray[i], i = 1, 2, 3, ...
+		LDR sp, [r1,#4]	;offset of 4 to reach task in TCB
+		ADD r1, #8 ; assuming each data is 32 bits, 4 words in RAM each data. The next tcb[i+1] should be 8 words after task entry
 		
 		SUB sp, #56
 		SUB r4, #1
@@ -92,6 +92,7 @@ OS_InitContextSwitcher PROC
 	STR r1, [r0, #STCTRL]
 	
 	;Set reload value. STRELOAD
+	;Set the period of the SysTick interrupt here with predefined values in my_Constants.s, under Systick speed
 	LDR r0, =SYS_PERIPH
 	LDR r1, [r0,#STRELOAD]
 	MOV r2, #ONE_MS
